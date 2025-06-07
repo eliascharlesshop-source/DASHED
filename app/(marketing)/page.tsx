@@ -1,0 +1,816 @@
+"use client"
+
+import { useState, useRef, useEffect } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { GetStartedFlow } from "@/components/onboarding/get-started-flow"
+import {
+  ArrowRight,
+  CheckCircle2,
+  Laptop,
+  Smartphone,
+  Tablet,
+  Globe,
+  Shield,
+  Zap,
+  Layers,
+  Star,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react"
+
+export default function Home() {
+  const [isGetStartedOpen, setIsGetStartedOpen] = useState(false)
+  const [activeTestimonial, setActiveTestimonial] = useState(0)
+  const heroRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  })
+
+  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0])
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.8])
+  const y = useTransform(scrollYProgress, [0, 1], [0, 100])
+
+  const handleGetStarted = () => {
+    setIsGetStartedOpen(true)
+  }
+
+  const testimonials = [
+    {
+      quote:
+        "DASHED OS has completely transformed how I interact with my devices. The seamless integration and intuitive interface have made my digital life so much more efficient.",
+      author: "Sarah Johnson",
+      role: "Product Designer",
+      company: "Creative Solutions",
+      avatar: "/placeholder.svg?height=60&width=60",
+    },
+    {
+      quote:
+        "As a developer, I appreciate the robust API and customization options. DASHED OS gives me the control I need while maintaining an elegant user experience.",
+      author: "Michael Chen",
+      role: "Senior Developer",
+      company: "TechInnovate",
+      avatar: "/placeholder.svg?height=60&width=60",
+    },
+    {
+      quote:
+        "The cross-device synchronization is flawless. I can start a task on my laptop and seamlessly continue on my phone without missing a beat.",
+      author: "Alex Rodriguez",
+      role: "Entrepreneur",
+      company: "Future Ventures",
+      avatar: "/placeholder.svg?height=60&width=60",
+    },
+  ]
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % testimonials.length)
+    }, 8000)
+
+    return () => clearInterval(interval)
+  }, [testimonials.length])
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section
+          ref={heroRef}
+          className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-b from-accent-50 to-white"
+        >
+          {/* Background Elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-full opacity-10">
+              <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#0077B5" strokeWidth="0.5" />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+              </svg>
+            </div>
+            <div className="absolute -top-[10%] -right-[10%] w-[50%] h-[50%] bg-accent-100 rounded-full mix-blend-multiply filter blur-[80px] opacity-30 animate-blob"></div>
+            <div className="absolute top-[60%] -left-[10%] w-[50%] h-[50%] bg-accent-200 rounded-full mix-blend-multiply filter blur-[80px] opacity-30 animate-blob animation-delay-2000"></div>
+          </div>
+
+          <div className="container px-4 md:px-6 relative z-10">
+            <motion.div style={{ opacity, scale, y }} className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Badge variant="outline" className="bg-white text-accent-500 border-accent-200 mb-4">
+                    Introducing DASHED OS 2.0
+                  </Badge>
+                </motion.div>
+
+                <motion.h1
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                  className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900"
+                >
+                  Your Digital Life, <span className="text-accent-500">Unified</span>
+                </motion.h1>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="text-xl text-gray-600 max-w-lg"
+                >
+                  DASHED OS seamlessly connects your devices, applications, and digital experiences into one intuitive
+                  personal operating system.
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="flex flex-col sm:flex-row gap-4"
+                >
+                  <Button
+                    size="lg"
+                    className="bg-accent-500 hover:bg-accent-600 text-white group transition-all duration-300 transform hover:scale-105"
+                    onClick={handleGetStarted}
+                  >
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-accent-300 text-accent-600 hover:bg-accent-50 transition-all duration-300"
+                  >
+                    Watch Demo
+                  </Button>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="flex items-center gap-4 pt-4"
+                >
+                  <div className="flex -space-x-2">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="w-8 h-8 rounded-full border-2 border-white overflow-hidden">
+                        <Image
+                          src={`/placeholder.svg?height=32&width=32&text=${i}`}
+                          alt={`User ${i}`}
+                          width={32}
+                          height={32}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    <span className="font-medium">10,000+</span> users already trust DASHED OS
+                  </p>
+                </motion.div>
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="relative"
+              >
+                <div className="relative bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
+                  <div className="absolute top-0 left-0 right-0 h-6 bg-gray-100 flex items-center px-2">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                      <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+                      <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                    </div>
+                  </div>
+                  <div className="pt-6">
+                    <Image
+                      src="/placeholder.svg?height=500&width=600&text=DASHED+OS+Interface"
+                      alt="DASHED OS Interface"
+                      width={600}
+                      height={500}
+                      className="w-full object-cover"
+                    />
+                  </div>
+
+                  {/* Floating Elements */}
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.6 }}
+                    className="absolute top-20 -right-12 w-32 h-32 bg-white rounded-lg shadow-lg p-2 transform rotate-6"
+                  >
+                    <Image
+                      src="/placeholder.svg?height=100&width=100&text=Widget"
+                      alt="Widget"
+                      width={100}
+                      height={100}
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.8 }}
+                    className="absolute bottom-20 -left-12 w-32 h-32 bg-white rounded-lg shadow-lg p-2 transform -rotate-6"
+                  >
+                    <Image
+                      src="/placeholder.svg?height=100&width=100&text=Notification"
+                      alt="Notification"
+                      width={100}
+                      height={100}
+                      className="w-full h-full object-cover rounded-md"
+                    />
+                  </motion.div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+
+          {/* Scroll Indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 1 }}
+            className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          >
+            <div className="flex flex-col items-center">
+              <p className="text-sm text-gray-500 mb-2">Scroll to explore</p>
+              <motion.div
+                animate={{ y: [0, 10, 0] }}
+                transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5 }}
+                className="w-6 h-10 border-2 border-gray-300 rounded-full flex justify-center pt-1"
+              >
+                <motion.div
+                  animate={{ y: [0, 5, 0] }}
+                  transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5 }}
+                  className="w-1.5 h-3 bg-accent-500 rounded-full"
+                />
+              </motion.div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* Trusted By Section */}
+        <section className="py-12 bg-white">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="text-xl font-medium text-gray-600">Trusted by innovative companies worldwide</h2>
+            </div>
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  className="grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                >
+                  <Image
+                    src={`/placeholder.svg?height=40&width=120&text=Company+${i}`}
+                    alt={`Company ${i}`}
+                    width={120}
+                    height={40}
+                    className="h-8 md:h-10 w-auto"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="py-20 bg-gradient-to-b from-white to-accent-50">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <Badge variant="outline" className="mb-4">
+                Features
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">One OS for all your devices</h2>
+              <p className="text-xl text-gray-600">
+                DASHED OS brings together your digital world with powerful features designed for modern life.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                {
+                  icon: <Layers className="h-8 w-8 text-accent-500" />,
+                  title: "Unified Experience",
+                  description:
+                    "Seamlessly transition between devices with a consistent interface and synchronized data.",
+                },
+                {
+                  icon: <Shield className="h-8 w-8 text-accent-500" />,
+                  title: "Enterprise-Grade Security",
+                  description:
+                    "End-to-end encryption and advanced security protocols protect your data across all devices.",
+                },
+                {
+                  icon: <Zap className="h-8 w-8 text-accent-500" />,
+                  title: "AI-Powered Productivity",
+                  description:
+                    "Smart assistants and automation tools that learn your preferences and streamline your workflow.",
+                },
+              ].map((feature, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+                >
+                  <div className="bg-accent-50 rounded-full p-4 inline-block mb-4">{feature.icon}</div>
+                  <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                  <p className="text-gray-600">{feature.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Cross-Device Section */}
+        <section className="py-20 bg-white">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                className="space-y-6"
+              >
+                <Badge variant="outline" className="mb-2">
+                  Cross-Device
+                </Badge>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">Your experience, everywhere</h2>
+                <p className="text-xl text-gray-600">
+                  DASHED OS synchronizes seamlessly across all your devices, ensuring your digital environment follows
+                  you wherever you go.
+                </p>
+
+                <div className="space-y-4">
+                  {[
+                    "Start tasks on one device and continue on another",
+                    "Unified notification system across all platforms",
+                    "Automatic file synchronization and versioning",
+                    "Consistent interface adapted to each device's form factor",
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-start">
+                      <CheckCircle2 className="h-6 w-6 text-accent-500 mr-2 flex-shrink-0" />
+                      <p className="text-gray-600">{item}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <Button className="bg-accent-500 hover:bg-accent-600 text-white group transition-all duration-300">
+                  Learn more about cross-device features
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </Button>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                className="relative"
+              >
+                <div className="relative bg-accent-50 rounded-xl p-8">
+                  <div className="grid grid-cols-3 gap-4">
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      whileInView={{ y: 0, opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: 0.1 }}
+                      className="col-span-2 row-span-2"
+                    >
+                      <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+                        <div className="h-4 bg-gray-100 flex items-center px-2">
+                          <div className="flex space-x-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-400"></div>
+                            <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
+                          </div>
+                        </div>
+                        <div className="p-2">
+                          <Laptop className="h-full w-full text-accent-300" />
+                        </div>
+                        <div className="p-2 bg-gray-50 text-center text-xs font-medium">Desktop</div>
+                      </div>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      whileInView={{ y: 0, opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                    >
+                      <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 h-full">
+                        <div className="h-3 bg-gray-100"></div>
+                        <div className="p-2">
+                          <Tablet className="h-full w-full text-accent-300" />
+                        </div>
+                        <div className="p-1 bg-gray-50 text-center text-xs font-medium">Tablet</div>
+                      </div>
+                    </motion.div>
+
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      whileInView={{ y: 0, opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                    >
+                      <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 h-full">
+                        <div className="h-2 bg-gray-100"></div>
+                        <div className="p-2">
+                          <Smartphone className="h-full w-full text-accent-300" />
+                        </div>
+                        <div className="p-1 bg-gray-50 text-center text-xs font-medium">Mobile</div>
+                      </div>
+                    </motion.div>
+                  </div>
+
+                  {/* Connection Lines */}
+                  <svg
+                    className="absolute inset-0 w-full h-full pointer-events-none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <line x1="40%" y1="40%" x2="70%" y2="30%" stroke="#0077B5" strokeWidth="2" strokeDasharray="4" />
+                    <line x1="40%" y1="60%" x2="70%" y2="70%" stroke="#0077B5" strokeWidth="2" strokeDasharray="4" />
+                  </svg>
+                </div>
+
+                {/* Floating Elements */}
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.5 }}
+                  className="absolute -top-6 -right-6 bg-white rounded-full shadow-lg p-3"
+                >
+                  <Globe className="h-8 w-8 text-accent-500" />
+                </motion.div>
+
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.6 }}
+                  className="absolute -bottom-6 -left-6 bg-white rounded-full shadow-lg p-3"
+                >
+                  <Zap className="h-8 w-8 text-accent-500" />
+                </motion.div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Interface Preview Section */}
+        <section className="py-20 bg-accent-50">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <Badge variant="outline" className="mb-4">
+                Interface
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Designed for productivity</h2>
+              <p className="text-xl text-gray-600">
+                Explore the intuitive interface of DASHED OS, crafted to enhance your workflow and digital experience.
+              </p>
+            </div>
+
+            <Tabs defaultValue="dashboard" className="w-full">
+              <div className="flex justify-center mb-8">
+                <TabsList className="grid w-full max-w-md grid-cols-3">
+                  <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+                  <TabsTrigger value="apps">Applications</TabsTrigger>
+                  <TabsTrigger value="settings">Settings</TabsTrigger>
+                </TabsList>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                <TabsContent value="dashboard" className="m-0">
+                  <div className="h-8 bg-gray-100 flex items-center px-4">
+                    <div className="flex space-x-2">
+                      <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                    </div>
+                    <div className="ml-4 text-sm text-gray-500">DASHED OS - Dashboard</div>
+                  </div>
+                  <div className="p-0">
+                    <Image
+                      src="/placeholder.svg?height=500&width=1000&text=Dashboard+Interface"
+                      alt="Dashboard Interface"
+                      width={1000}
+                      height={500}
+                      className="w-full object-cover"
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="apps" className="m-0">
+                  <div className="h-8 bg-gray-100 flex items-center px-4">
+                    <div className="flex space-x-2">
+                      <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                    </div>
+                    <div className="ml-4 text-sm text-gray-500">DASHED OS - Applications</div>
+                  </div>
+                  <div className="p-0">
+                    <Image
+                      src="/placeholder.svg?height=500&width=1000&text=Applications+Interface"
+                      alt="Applications Interface"
+                      width={1000}
+                      height={500}
+                      className="w-full object-cover"
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="settings" className="m-0">
+                  <div className="h-8 bg-gray-100 flex items-center px-4">
+                    <div className="flex space-x-2">
+                      <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                    </div>
+                    <div className="ml-4 text-sm text-gray-500">DASHED OS - Settings</div>
+                  </div>
+                  <div className="p-0">
+                    <Image
+                      src="/placeholder.svg?height=500&width=1000&text=Settings+Interface"
+                      alt="Settings Interface"
+                      width={1000}
+                      height={500}
+                      className="w-full object-cover"
+                    />
+                  </div>
+                </TabsContent>
+              </div>
+            </Tabs>
+          </div>
+        </section>
+
+        {/* Testimonials Section */}
+        <section className="py-20 bg-white">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <Badge variant="outline" className="mb-4">
+                Testimonials
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">What our users say</h2>
+              <p className="text-xl text-gray-600">
+                Discover how DASHED OS is transforming digital experiences for users worldwide.
+              </p>
+            </div>
+
+            <div className="relative max-w-4xl mx-auto">
+              <div className="absolute top-10 left-0 w-20 h-20 bg-accent-50 rounded-full opacity-50"></div>
+              <div className="absolute bottom-10 right-0 w-20 h-20 bg-accent-50 rounded-full opacity-50"></div>
+
+              <div className="bg-white rounded-xl shadow-md border border-gray-200 p-8 md:p-12 relative z-10">
+                <div className="text-accent-500 mb-6">
+                  <svg
+                    width="45"
+                    height="36"
+                    className="fill-current"
+                    viewBox="0 0 45 36"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M13.5 0C6.04 0 0 6.04 0 13.5C0 20.96 6.04 27 13.5 27C20.96 27 27 20.96 27 13.5C27 6.04 20.96 0 13.5 0ZM40.5 0C33.04 0 27 6.04 27 13.5C27 20.96 33.04 27 40.5 27C47.96 27 54 20.96 54 13.5C54 6.04 47.96 0 40.5 0Z" />
+                  </svg>
+                </div>
+
+                <div className="h-40">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeTestimonial}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <p className="text-xl md:text-2xl text-gray-700 italic mb-6">
+                        "{testimonials[activeTestimonial].quote}"
+                      </p>
+
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
+                          <Image
+                            src={testimonials[activeTestimonial].avatar || "/placeholder.svg"}
+                            alt={testimonials[activeTestimonial].author}
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{testimonials[activeTestimonial].author}</p>
+                          <p className="text-sm text-gray-600">
+                            {testimonials[activeTestimonial].role}, {testimonials[activeTestimonial].company}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+
+                <div className="flex justify-center mt-8">
+                  <div className="flex space-x-2">
+                    {testimonials.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setActiveTestimonial(index)}
+                        className={`w-3 h-3 rounded-full transition-colors duration-300 ${
+                          activeTestimonial === index ? "bg-accent-500" : "bg-gray-300"
+                        }`}
+                        aria-label={`Go to testimonial ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="absolute top-1/2 -left-4 transform -translate-y-1/2">
+                  <button
+                    onClick={() =>
+                      setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)
+                    }
+                    className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-600 hover:text-accent-500 transition-colors duration-300"
+                    aria-label="Previous testimonial"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="absolute top-1/2 -right-4 transform -translate-y-1/2">
+                  <button
+                    onClick={() => setActiveTestimonial((prev) => (prev + 1) % testimonials.length)}
+                    className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-600 hover:text-accent-500 transition-colors duration-300"
+                    aria-label="Next testimonial"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Ecosystem Section */}
+        <section className="py-20 bg-gradient-to-b from-accent-50 to-white">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <Badge variant="outline" className="mb-4">
+                Ecosystem
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Complete hardware ecosystem</h2>
+              <p className="text-xl text-gray-600">
+                DASHED OS is powered by our innovative hardware products, designed to work seamlessly together.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[
+                {
+                  name: "DASHED Hub",
+                  description: "The central control unit for your DASHED ecosystem.",
+                  image: "/placeholder.svg?height=300&width=300&text=DASHED+Hub",
+                  link: "/products/dashed-hub",
+                },
+                {
+                  name: "DASHED Display",
+                  description: "High-resolution touchscreen for visualizing your digital environment.",
+                  image: "/placeholder.svg?height=300&width=300&text=DASHED+Display",
+                  link: "/products/dashed-display",
+                },
+                {
+                  name: "DASHED Controller",
+                  description: "Ergonomic handheld controller for precise interaction.",
+                  image: "/placeholder.svg?height=300&width=300&text=DASHED+Controller",
+                  link: "/products/dashed-controller",
+                },
+                {
+                  name: "DASHED Dock",
+                  description: "Connect and charge multiple DASHED devices seamlessly.",
+                  image: "/placeholder.svg?height=300&width=300&text=DASHED+Dock",
+                  link: "/products/dashed-dock",
+                },
+              ].map((product, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300 hover:-translate-y-1 group"
+                >
+                  <div className="aspect-square relative bg-accent-50">
+                    <Image
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.name}
+                      fill
+                      className="object-contain p-8 transition-transform duration-500 group-hover:scale-110"
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold mb-2 group-hover:text-accent-500 transition-colors duration-300">
+                      {product.name}
+                    </h3>
+                    <p className="text-gray-600 mb-4">{product.description}</p>
+                    <Link
+                      href={product.link}
+                      className="text-accent-500 font-medium flex items-center group-hover:underline"
+                    >
+                      Learn more
+                      <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-20 bg-gradient-to-r from-accent-600 to-accent-700 text-white">
+          <div className="container px-4 md:px-6 mx-auto">
+            <div className="max-w-3xl mx-auto text-center">
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                className="text-3xl md:text-4xl font-bold mb-4"
+              >
+                Ready to transform your digital experience?
+              </motion.h2>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="text-xl text-accent-100 mb-8"
+              >
+                Join thousands of users who have already upgraded to DASHED OS.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="flex flex-col sm:flex-row justify-center gap-4"
+              >
+                <Button
+                  size="lg"
+                  className="bg-white text-accent-600 hover:bg-accent-50 transition-all duration-300 transform hover:scale-105"
+                  onClick={handleGetStarted}
+                >
+                  Get Started
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white text-white hover:bg-accent-500 transition-all duration-300 transform hover:scale-105"
+                >
+                  View Pricing
+                </Button>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="mt-8 flex items-center justify-center gap-2"
+              >
+                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                <span className="ml-2 text-accent-100">4.9/5 from over 1,000 reviews</span>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Get Started Flow */}
+      <GetStartedFlow isOpen={isGetStartedOpen} onClose={() => setIsGetStartedOpen(false)} />
+    </div>
+  )
+}
