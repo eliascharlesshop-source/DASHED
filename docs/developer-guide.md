@@ -579,6 +579,674 @@ logger.performance('API Request', {
 - [ ] Security considerations are addressed
 - [ ] Performance implications are considered
 
+---
+
+# Patch 1 Admin Enhancement - Developer Guide
+
+## Admin Component Architecture
+
+### Component Hierarchy
+
+```
+AdminLayout
+├── AdminSidebar
+├── AdminHeader
+│   ├── AdminBreadcrumbs
+│   └── AdminUserMenu
+└── AdminContent
+    ├── AdminDashboard
+    │   ├── StatsCards
+    │   ├── ChartsSection
+    │   └── ActivityFeed
+    ├── OrderManagement
+    │   ├── OrderFilters
+    │   ├── OrderTable
+    │   ├── BulkActions
+    │   └── OrderModal
+    ├── CategoryManagement
+    │   ├── CategoryTree
+    │   ├── CategoryForm
+    │   └── CategoryAssignments
+    ├── TicketManagement
+    │   ├── TicketList
+    │   ├── TicketFilters
+    │   ├── TicketModal
+    │   └── ResponseForm
+    └── LicenseManagement
+        ├── LicenseList
+        ├── LicenseForm
+        ├── AssignmentForm
+        └── UsageAnalytics
+```
+
+### Admin API Route Structure
+
+```
+/api/admin/
+├── categories/
+│   ├── route.ts                    # GET, POST, PATCH
+│   └── [id]/
+│       └── route.ts                # GET, PUT, DELETE
+├── orders/
+│   ├── route.ts                    # GET, PATCH
+│   ├── [id]/
+│   │   └── route.ts                # GET, PUT
+│   └── export/
+│       └── route.ts                # GET
+├── support-tickets/
+│   ├── route.ts                    # GET, PATCH
+│   ├── [id]/
+│   │   └── route.ts                # GET, PUT, POST
+│   └── export/
+│       └── route.ts                # GET
+├── licenses/
+│   ├── route.ts                    # GET, POST
+│   └── [id]/
+│       └── route.ts                # GET, PUT, DELETE
+├── user-licenses/
+│   ├── route.ts                    # GET, POST, PATCH
+│   ├── [id]/
+│   │   └── route.ts                # GET, PUT
+│   └── export/
+│       └── route.ts                # GET
+├── users/
+│   ├── route.ts                    # GET, PATCH
+│   └── [id]/
+│       └── route.ts                # GET, PUT
+├── product-categories/
+│   └── assignments/
+│       └── route.ts                # GET, POST, PATCH
+└── stats/
+    └── route.ts                    # GET
+```
+
+## Database Schema Enhancements
+
+### New Tables Added in Patch 1
+
+```sql
+-- Product Categories (Hierarchical)
+CREATE TABLE product_categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(100) NOT NULL,
+  slug VARCHAR(120) UNIQUE NOT NULL,
+  description TEXT,
+  parent_id UUID REFERENCES product_categories(id) ON DELETE CASCADE,
+  is_active BOOLEAN DEFAULT true,
+  is_featured BOOLEAN DEFAULT false,
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Software Licenses
+CREATE TABLE software_licenses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(100) NOT NULL,
+  description TEXT,
+  license_key VARCHAR(255) UNIQUE NOT NULL,
+  max_users INTEGER NOT NULL DEFAULT 1,
+  is_active BOOLEAN DEFAULT true,
+  expires_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- User License Assignments
+CREATE TABLE user_licenses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  license_id UUID NOT NULL REFERENCES software_licenses(id) ON DELETE CASCADE,
+  assigned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  expires_at TIMESTAMP WITH TIME ZONE,
+  is_active BOOLEAN DEFAULT true,
+  UNIQUE(user_id, license_id)
+);
+
+-- Support Tickets
+CREATE TABLE support_tickets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  subject VARCHAR(200) NOT NULL,
+  message TEXT NOT NULL,
+  status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'resolved', 'closed')),
+  priority VARCHAR(20) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
+  category VARCHAR(100),
+  assigned_to UUID REFERENCES users(id) ON DELETE SET NULL,
+  admin_notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Support Ticket Responses
+CREATE TABLE support_ticket_responses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ticket_id UUID NOT NULL REFERENCES support_tickets(id) ON DELETE CASCADE,
+  author_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  message TEXT NOT NULL,
+  is_internal BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Order Status History
+CREATE TABLE order_status_history (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  old_status VARCHAR(50),
+  new_status VARCHAR(50) NOT NULL,
+  changed_by UUID REFERENCES users(id) ON DELETE SET NULL,
+  changed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  notes TEXT
+);
+
+-- Product Category Assignments
+CREATE TABLE product_category_assignments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  category_id UUID NOT NULL REFERENCES product_categories(id) ON DELETE CASCADE,
+  assigned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(product_id, category_id)
+);
+
+-- Admin Action Logs
+CREATE TABLE admin_action_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  admin_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  action_type VARCHAR(50) NOT NULL,
+  resource_type VARCHAR(50) NOT NULL,
+  resource_id UUID,
+  details JSONB,
+  performed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Performance Indexes
+
+```sql
+-- Indexes for optimal admin query performance
+CREATE INDEX idx_product_categories_parent_id ON product_categories(parent_id);
+CREATE INDEX idx_product_categories_active_featured ON product_categories(is_active, is_featured);
+CREATE INDEX idx_user_licenses_user_active ON user_licenses(user_id, is_active);
+CREATE INDEX idx_user_licenses_license_active ON user_licenses(license_id, is_active);
+CREATE INDEX idx_support_tickets_status_priority ON support_tickets(status, priority);
+CREATE INDEX idx_support_tickets_assigned_status ON support_tickets(assigned_to, status);
+CREATE INDEX idx_order_status_history_order_changed ON order_status_history(order_id, changed_at);
+CREATE INDEX idx_admin_action_logs_admin_performed ON admin_action_logs(admin_user_id, performed_at);
+```
+
+## TypeScript Type Definitions
+
+### Core Admin Types
+
+```typescript
+// Enhanced type definitions for admin features
+interface ProductCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  parentId?: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+  children?: ProductCategory[];
+  _count?: {
+    products: number;
+    children: number;
+  };
+}
+
+interface SoftwareLicense {
+  id: string;
+  name: string;
+  description?: string;
+  licenseKey: string;
+  maxUsers: number;
+  isActive: boolean;
+  expiresAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  _count?: {
+    assignments: number;
+  };
+}
+
+interface UserLicense {
+  id: string;
+  userId: string;
+  licenseId: string;
+  assignedAt: string;
+  expiresAt?: string;
+  isActive: boolean;
+  user: {
+    id: string;
+    email: string;
+    fullName?: string;
+  };
+  license: SoftwareLicense;
+}
+
+interface SupportTicket {
+  id: string;
+  userId: string;
+  subject: string;
+  message: string;
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  category?: string;
+  assignedTo?: string;
+  adminNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    email: string;
+    fullName?: string;
+  };
+  assignedAdmin?: {
+    id: string;
+    email: string;
+    fullName?: string;
+  };
+  responses?: TicketResponse[];
+}
+
+interface TicketResponse {
+  id: string;
+  ticketId: string;
+  authorId: string;
+  message: string;
+  isInternal: boolean;
+  createdAt: string;
+  author: {
+    id: string;
+    email: string;
+    fullName?: string;
+  };
+}
+
+interface AdminStats {
+  orders: {
+    total: number;
+    pending: number;
+    completed: number;
+    last30Days: number;
+  };
+  tickets: {
+    total: number;
+    open: number;
+    inProgress: number;
+    last7Days: number;
+  };
+  users: {
+    total: number;
+    active: number;
+    newLast30Days: number;
+  };
+  licenses: {
+    total: number;
+    active: number;
+    expiring: number;
+  };
+  products: {
+    total: number;
+    active: number;
+    categories: number;
+  };
+}
+```
+
+## Custom Hooks for Admin Features
+
+### Data Fetching Hooks
+
+```typescript
+// Admin-specific custom hooks
+export function useAdminStats() {
+  return useQuery({
+    queryKey: ['admin', 'stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/stats');
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      return response.json();
+    },
+    staleTime: 30 * 1000, // 30 seconds
+    refetchInterval: 60 * 1000, // 1 minute
+  });
+}
+
+export function useAdminOrders(filters: OrderFilters) {
+  return useQuery({
+    queryKey: ['admin', 'orders', filters],
+    queryFn: async () => {
+      const searchParams = new URLSearchParams({
+        page: filters.page.toString(),
+        limit: filters.limit.toString(),
+        ...(filters.status && { status: filters.status }),
+        ...(filters.search && { search: filters.search }),
+      });
+      
+      const response = await fetch(`/api/admin/orders?${searchParams}`);
+      if (!response.ok) throw new Error('Failed to fetch orders');
+      return response.json();
+    },
+    keepPreviousData: true,
+  });
+}
+
+export function useUpdateOrder() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<Order> }) => {
+      const response = await fetch(`/api/admin/orders/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) throw new Error('Failed to update order');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] });
+    },
+  });
+}
+
+export function useAdminCategories() {
+  return useQuery({
+    queryKey: ['admin', 'categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/categories');
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      return response.json();
+    },
+  });
+}
+
+export function useSupportTickets(filters: TicketFilters) {
+  return useQuery({
+    queryKey: ['admin', 'tickets', filters],
+    queryFn: async () => {
+      const searchParams = new URLSearchParams({
+        page: filters.page.toString(),
+        limit: filters.limit.toString(),
+        ...(filters.status && { status: filters.status }),
+        ...(filters.priority && { priority: filters.priority }),
+        ...(filters.assignedTo && { assignedTo: filters.assignedTo }),
+      });
+      
+      const response = await fetch(`/api/admin/support-tickets?${searchParams}`);
+      if (!response.ok) throw new Error('Failed to fetch tickets');
+      return response.json();
+    },
+    keepPreviousData: true,
+  });
+}
+```
+
+## Testing Strategy for Admin Features
+
+### Component Testing
+
+```typescript
+// Example: Testing AdminDashboard component
+import { render, screen, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AdminDashboard } from '@/components/admin/AdminDashboard';
+
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+  
+  return ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
+};
+
+describe('AdminDashboard', () => {
+  beforeEach(() => {
+    fetch.mockClear();
+  });
+
+  it('should display admin statistics', async () => {
+    const mockStats = {
+      orders: { total: 100, pending: 10, completed: 80, last30Days: 25 },
+      tickets: { total: 50, open: 5, inProgress: 3, last7Days: 8 },
+      users: { total: 200, active: 180, newLast30Days: 15 },
+      licenses: { total: 10, active: 8, expiring: 2 },
+      products: { total: 150, active: 140, categories: 20 },
+    };
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockStats,
+    });
+
+    render(<AdminDashboard />, { wrapper: createWrapper() });
+
+    await waitFor(() => {
+      expect(screen.getByText('100')).toBeInTheDocument(); // Total orders
+      expect(screen.getByText('50')).toBeInTheDocument(); // Total tickets
+    });
+  });
+});
+```
+
+### API Route Testing
+
+```typescript
+// Example: Testing admin categories API
+import { GET, POST } from '@/app/api/admin/categories/route';
+import { createMocks } from 'node-mocks-http';
+
+// Mock Supabase
+jest.mock('@supabase/auth-helpers-nextjs', () => ({
+  createServerComponentClient: () => ({
+    auth: {
+      getUser: jest.fn().mockResolvedValue({
+        data: { user: { id: 'admin-user-id' } },
+      }),
+    },
+    from: jest.fn().mockReturnThis(),
+    select: jest.fn().mockReturnThis(),
+    insert: jest.fn().mockReturnThis(),
+    single: jest.fn(),
+  }),
+}));
+
+// Mock admin validation
+jest.mock('@/lib/api-utils', () => ({
+  validateAdminUser: jest.fn().mockResolvedValue({ isValid: true }),
+}));
+
+describe('/api/admin/categories', () => {
+  it('should return categories for admin user', async () => {
+    const { req } = createMocks({ method: 'GET' });
+    
+    const response = await GET(req as any);
+    expect(response.status).toBe(200);
+  });
+
+  it('should create new category', async () => {
+    const { req } = createMocks({
+      method: 'POST',
+      body: JSON.stringify({
+        name: 'Test Category',
+        description: 'Test description',
+      }),
+    });
+    
+    const response = await POST(req as any);
+    expect(response.status).toBe(201);
+  });
+});
+```
+
+## Performance Optimization Guidelines
+
+### Database Query Optimization
+
+```typescript
+// Optimized admin queries with proper joins and indexes
+export async function getAdminOrdersOptimized(filters: OrderFilters) {
+  const supabase = createServerComponentClient({ cookies });
+  
+  let query = supabase
+    .from('orders')
+    .select(`
+      id,
+      status,
+      totalAmount,
+      createdAt,
+      updatedAt,
+      user:users!userId(id, email, fullName),
+      items:order_items(
+        id,
+        quantity,
+        price,
+        product:products(name, slug)
+      )
+    `, { count: 'exact' });
+
+  // Apply filters efficiently
+  if (filters.status) {
+    query = query.eq('status', filters.status);
+  }
+  
+  if (filters.startDate) {
+    query = query.gte('createdAt', filters.startDate);
+  }
+  
+  if (filters.endDate) {
+    query = query.lte('createdAt', filters.endDate);
+  }
+
+  // Pagination
+  const offset = (filters.page - 1) * filters.limit;
+  query = query
+    .range(offset, offset + filters.limit - 1)
+    .order('createdAt', { ascending: false });
+
+  return query;
+}
+```
+
+### Frontend Performance
+
+```typescript
+// Memoization for expensive computations
+const MemoizedCategoryTree = memo(({ categories }: { categories: ProductCategory[] }) => {
+  const treeData = useMemo(() => {
+    return buildCategoryTree(categories);
+  }, [categories]);
+
+  return <CategoryTreeComponent data={treeData} />;
+});
+
+// Virtual scrolling for large lists
+import { FixedSizeList as List } from 'react-window';
+
+function VirtualizedOrderList({ orders }: { orders: Order[] }) {
+  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => (
+    <div style={style}>
+      <OrderRow order={orders[index]} />
+    </div>
+  );
+
+  return (
+    <List
+      height={600}
+      itemCount={orders.length}
+      itemSize={80}
+      width="100%"
+    >
+      {Row}
+    </List>
+  );
+}
+```
+
+## Security Considerations
+
+### Admin Authentication & Authorization
+
+```typescript
+// Enhanced admin validation middleware
+export async function validateAdminUser(userId: string) {
+  const supabase = createServerComponentClient({ cookies });
+  
+  try {
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, role, isActive, lastLoginAt')
+      .eq('id', userId)
+      .single();
+
+    if (error || !user) {
+      return { isValid: false, error: 'User not found' };
+    }
+
+    if (user.role !== 'admin') {
+      return { isValid: false, error: 'Insufficient permissions' };
+    }
+
+    if (!user.isActive) {
+      return { isValid: false, error: 'Account deactivated' };
+    }
+
+    // Update last login for admin users
+    await supabase
+      .from('users')
+      .update({ lastLoginAt: new Date().toISOString() })
+      .eq('id', userId);
+
+    return { isValid: true, user };
+  } catch (error) {
+    console.error('Admin validation error:', error);
+    return { isValid: false, error: 'Validation failed' };
+  }
+}
+
+// Rate limiting for admin endpoints
+import { Ratelimit } from '@upstash/ratelimit';
+
+const adminRateLimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(100, '1 m'), // 100 requests per minute
+});
+
+export async function checkAdminRateLimit(request: NextRequest) {
+  const ip = request.ip ?? 'anonymous';
+  const { success, limit, reset, remaining } = await adminRateLimit.limit(ip);
+  
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Rate limit exceeded' },
+      { 
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': limit.toString(),
+          'X-RateLimit-Remaining': remaining.toString(),
+          'X-RateLimit-Reset': reset.toString(),
+        },
+      }
+    );
+  }
+  
+  return null; // Continue processing
+}
+```
+
 ## Resources
 
 - [Next.js Documentation](https://nextjs.org/docs)
@@ -587,3 +1255,11 @@ logger.performance('API Request', {
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [React Hook Form](https://react-hook-form.com)
 - [Zod Documentation](https://zod.dev)
+- [React Query Documentation](https://tanstack.com/query/latest)
+- [shadcn/ui Components](https://ui.shadcn.com/)
+
+---
+
+**Developer Guide Version**: 1.1.0 (Patch 1)  
+**Last Updated**: January 2024  
+**Next Review**: March 2024

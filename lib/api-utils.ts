@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 import { ApiResponse, ApiError } from '@/types'
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 
 export class AppError extends Error {
   public readonly statusCode: number
@@ -43,10 +45,10 @@ export function createErrorResponse(
     apiError = {
       code: 'VALIDATION_ERROR',
       message: 'Validation failed',
-      details: error.errors.reduce((acc, err) => {
+      details: error.issues.reduce((acc: Record<string, string>, err) => {
         acc[err.path.join('.')] = err.message
         return acc
-      }, {} as Record<string, string>),
+      }, {}),
       timestamp: new Date().toISOString(),
     }
     statusCode = 400
@@ -149,3 +151,57 @@ export const HTTP_STATUS = {
 } as const
 
 export type HttpStatus = typeof HTTP_STATUS[keyof typeof HTTP_STATUS]
+
+export async function validateUser(userId: string) {
+  try {
+    const supabase = createServerComponentClient({ cookies })
+    
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, email, role, isActive')
+      .eq('id', userId)
+      .single()
+
+    if (error || !user) {
+      return { isValid: false, user: null }
+    }
+
+    if (!user.isActive) {
+      return { isValid: false, user: null }
+    }
+
+    return { isValid: true, user }
+  } catch (error) {
+    console.error('Error validating user:', error)
+    return { isValid: false, user: null }
+  }
+}
+
+export async function validateAdminUser(userId: string) {
+  const { isValid, user } = await validateUser(userId)
+  if (!isValid || user?.role !== 'admin') {
+    return { isValid: false, user: null }
+  }
+  return { isValid: true, user }
+}
+
+export async function getUserRole(userId: string): Promise<string | null> {
+  try {
+    const supabase = createServerComponentClient({ cookies })
+    
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single()
+
+    if (error || !user) {
+      return null
+    }
+
+    return user.role
+  } catch (error) {
+    console.error('Error getting user role:', error)
+    return null
+  }
+}

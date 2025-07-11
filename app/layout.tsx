@@ -9,9 +9,17 @@ import { CartProvider } from "@/components/cart/cart-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "DASHED OS",
-  description: "The operating system for your connected life",
-    generator: 'v0.dev'
+  title: "DASHED - Admin Platform",
+  description: "Comprehensive admin platform for business management and operations",
+  keywords: ["admin", "dashboard", "management", "business", "DASHED"],
+  authors: [{ name: "DASHED Team" }],
+  creator: "DASHED",
+  publisher: "DASHED",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
 }
 
 export default function RootLayout({

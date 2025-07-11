@@ -89,6 +89,110 @@ export interface Cart {
   updatedAt: string;
 }
 
+// Product Categories
+export interface ProductCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  parentId?: string;
+  imageUrl?: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+  children?: ProductCategory[];
+  parent?: ProductCategory;
+}
+
+// Software Licenses
+export interface SoftwareLicense {
+  id: string;
+  name: string;
+  type: 'perpetual' | 'subscription' | 'trial' | 'freemium';
+  productId: string;
+  description?: string;
+  features: string[];
+  durationDays?: number;
+  maxDevices: number;
+  price: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  product?: Product;
+}
+
+// User License Assignments
+export interface UserLicense {
+  id: string;
+  userId: string;
+  licenseId: string;
+  activationKey: string;
+  status: 'active' | 'suspended' | 'expired' | 'revoked';
+  activatedAt: string;
+  expiresAt?: string;
+  deviceAssignments: string[];
+  createdAt: string;
+  updatedAt: string;
+  license?: SoftwareLicense;
+  user?: User;
+}
+
+// Order Status History
+export interface OrderStatusHistory {
+  id: string;
+  orderId: string;
+  status: string;
+  notes?: string;
+  trackingNumber?: string;
+  adminUserId?: string;
+  createdAt: string;
+  adminUser?: User;
+}
+
+// Product Category Assignments
+export interface ProductCategoryAssignment {
+  id: string;
+  productId: string;
+  categoryId: string;
+  isPrimary: boolean;
+  createdAt: string;
+  category?: ProductCategory;
+}
+
+// Admin Action Logs
+export interface AdminActionLog {
+  id: string;
+  adminUserId?: string;
+  actionType: string;
+  resourceType: string;
+  resourceId: string;
+  details: Record<string, any>;
+  ipAddress?: string;
+  userAgent?: string;
+  createdAt: string;
+  adminUser?: User;
+}
+
+// Enhanced Product interface
+export interface EnhancedProduct extends Product {
+  sku?: string;
+  weight?: number;
+  dimensions?: {
+    length: number;
+    width: number;
+    height: number;
+  };
+  tags?: string[];
+  isFeatured: boolean;
+  sortOrder: number;
+  metaTitle?: string;
+  metaDescription?: string;
+  adminNotes?: string;
+  categories?: ProductCategory[];
+  licenses?: SoftwareLicense[];
+}
+
 // Order types
 export interface Order {
   id: string;

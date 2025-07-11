@@ -720,7 +720,325 @@ For API support, please:
 3. Create a new issue with detailed information
 4. Contact support at api-support@dashed.com
 
+---
+
+# Admin API Reference - Patch 1
+
+This section provides comprehensive documentation for all admin API endpoints introduced in Patch 1.
+
+## Admin Authentication
+
+All admin endpoints require:
+1. Valid user authentication via Supabase Auth
+2. Admin role validation through `validateAdminUser` middleware
+
+### Authorization Header
+```
+Authorization: Bearer <jwt_token>
+```
+
+## Admin Error Responses
+
+All admin endpoints return consistent error responses:
+
+```typescript
+{
+  error: string;           // Error message
+  details?: Array<{        // Validation errors (if applicable)
+    path: string;
+    message: string;
+  }>;
+}
+```
+
+Common HTTP status codes:
+- `401` - Unauthorized (no valid session)
+- `403` - Forbidden (not admin user)
+- `400` - Bad Request (validation errors)
+- `404` - Resource not found
+- `500` - Internal server error
+
+---
+
+## Product Categories Admin API
+
+### GET /api/admin/categories
+
+Retrieve product categories with hierarchical structure.
+
+**Query Parameters:**
+- `page` (number, default: 1) - Page number for pagination
+- `limit` (number, default: 20) - Items per page
+- `parentId` (string, optional) - Filter by parent category ID
+- `search` (string, optional) - Search in name and description
+- `isActive` (boolean, optional) - Filter by active status
+- `isFeatured` (boolean, optional) - Filter by featured status
+
+**Response:**
+```typescript
+{
+  categories: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    description?: string;
+    parentId?: string;
+    isActive: boolean;
+    isFeatured: boolean;
+    displayOrder: number;
+    createdAt: string;
+    updatedAt: string;
+    children?: Category[];     // Nested subcategories
+    _count: {
+      products: number;        // Product count in category
+      children: number;        // Subcategory count
+    };
+  }>;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+```
+
+### POST /api/admin/categories
+
+Create a new product category.
+
+**Request Body:**
+```typescript
+{
+  name: string;              // Required, 1-100 characters
+  description?: string;      // Optional, max 500 characters
+  parentId?: string;         // Optional, UUID of parent category
+  isFeatured?: boolean;      // Optional, default false
+  displayOrder?: number;     // Optional, default 0
+}
+```
+
+### PUT /api/admin/categories/[id]
+
+Update an existing category.
+
+### DELETE /api/admin/categories/[id]
+
+Delete a category. Will fail if category has products or subcategories.
+
+### PATCH /api/admin/categories
+
+Bulk update multiple categories.
+
+---
+
+## Orders Management Admin API
+
+### GET /api/admin/orders
+
+Retrieve orders with filtering and pagination.
+
+**Query Parameters:**
+- `page` (number, default: 1)
+- `limit` (number, default: 20)
+- `status` (string, optional) - Filter by order status
+- `userId` (string, optional) - Filter by user ID
+- `search` (string, optional) - Search in customer details
+- `startDate` (string, optional) - Filter orders after date (ISO 8601)
+- `endDate` (string, optional) - Filter orders before date (ISO 8601)
+
+### PUT /api/admin/orders/[id]
+
+Update order details.
+
+### PATCH /api/admin/orders
+
+Bulk update multiple orders.
+
+---
+
+## Software Licenses Admin API
+
+### GET /api/admin/licenses
+
+Retrieve software licenses.
+
+### POST /api/admin/licenses
+
+Create new software license.
+
+### PUT /api/admin/licenses/[id]
+
+Update license details.
+
+### DELETE /api/admin/licenses/[id]
+
+Delete license (will revoke all user assignments).
+
+---
+
+## User License Assignments Admin API
+
+### GET /api/admin/user-licenses
+
+Retrieve user license assignments.
+
+### POST /api/admin/user-licenses
+
+Assign license to user.
+
+### PUT /api/admin/user-licenses/[id]
+
+Update license assignment.
+
+### PATCH /api/admin/user-licenses
+
+Bulk update assignments.
+
+---
+
+## Support Tickets Admin API
+
+### GET /api/admin/support-tickets
+
+Retrieve support tickets with filtering.
+
+### PATCH /api/admin/support-tickets
+
+Bulk update tickets.
+
+### GET /api/admin/support-tickets/[id]
+
+Get detailed ticket with responses.
+
+### PUT /api/admin/support-tickets/[id]
+
+Update specific ticket.
+
+### POST /api/admin/support-tickets/[id]
+
+Add response to ticket.
+
+---
+
+## User Management Admin API
+
+### GET /api/admin/users
+
+Retrieve users with filtering.
+
+### PATCH /api/admin/users
+
+Bulk update users.
+
+---
+
+## Product-Category Assignments Admin API
+
+### GET /api/admin/product-categories/assignments
+
+Retrieve product-category assignments.
+
+### POST /api/admin/product-categories/assignments
+
+Assign categories to product.
+
+### PATCH /api/admin/product-categories/assignments
+
+Bulk assign/unassign categories.
+
+---
+
+## Admin Statistics API
+
+### GET /api/admin/stats
+
+Get dashboard statistics.
+
+**Response:**
+```typescript
+{
+  orders: {
+    total: number;
+    pending: number;
+    completed: number;
+    last30Days: number;
+  };
+  tickets: {
+    total: number;
+    open: number;
+    inProgress: number;
+    last7Days: number;
+  };
+  users: {
+    total: number;
+    active: number;
+    newLast30Days: number;
+  };
+  licenses: {
+    total: number;
+    active: number;
+    expiring: number;        // Expiring within 30 days
+  };
+  products: {
+    total: number;
+    active: number;
+    categories: number;
+  };
+}
+```
+
+---
+
+## Admin Rate Limiting
+
+All admin endpoints are subject to rate limiting:
+- **General endpoints**: 100 requests per minute per IP
+- **Bulk operations**: 10 requests per minute per IP
+- **Export operations**: 5 requests per minute per IP
+
+---
+
+## Admin Best Practices
+
+### Pagination
+- Always use pagination for list endpoints
+- Default limit is 20, maximum is 100
+- Use `page` and `limit` parameters consistently
+
+### Filtering
+- Combine multiple filters for efficient queries
+- Use date ranges for time-based filtering
+- Search parameters support partial matching
+
+### Error Handling
+- Check HTTP status codes for error types
+- Parse `details` array for validation errors
+- Implement retry logic for 5xx errors
+
+### Performance
+- Use appropriate page sizes
+- Filter results at the API level
+- Cache frequently accessed data
+
+### Security
+- Always validate admin permissions
+- Log sensitive operations
+- Use HTTPS for all requests
+- Implement proper input validation
+
+---
+
 ## Changelog
+
+### v1.1.0 (Patch 1) - 2024-01-15
+- Added comprehensive admin API suite
+- Implemented hierarchical category management
+- Added support ticket system
+- Created license management endpoints
+- Added bulk operations support
+- Implemented performance optimizations
+- Added comprehensive error handling and validation
 
 ### v1.0.0 (2024-01-01)
 - Initial API release
