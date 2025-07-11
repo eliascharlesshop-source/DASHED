@@ -21,6 +21,12 @@ import {
 import { AdminDashboard } from '@/components/admin/admin-dashboard';
 import { CategoryManagement } from '@/components/admin/category-management';
 import { OrderManagement } from '@/components/admin/order-management';
+import LicenseManagement from '@/components/admin/LicenseManagement';
+import TicketManagement from '@/components/admin/TicketManagement';
+import { UserManagement } from '@/components/admin/UserManagement';
+import { ProductManagement } from '@/components/admin/ProductManagement';
+import { Analytics } from '@/components/admin/Analytics';
+import { AdminSettings } from '@/components/admin/AdminSettings';
 
 const sidebarNavItems = [
   {
@@ -47,6 +53,11 @@ const sidebarNavItems = [
     title: 'Users',
     icon: Users,
     id: 'users',
+  },
+  {
+    title: 'Support',
+    icon: Shield,
+    id: 'support',
   },
   {
     title: 'Licenses',
@@ -91,40 +102,24 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       case 'categories':
         return <CategoryManagement />;
       case 'products-list':
+        return <ProductManagement />;
+      case 'inventory':
         return (
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Product Management</h2>
-            <p className="text-muted-foreground">Product management interface will be implemented here.</p>
+            <h2 className="text-2xl font-bold mb-4">Inventory Management</h2>
+            <p className="text-muted-foreground">Inventory tracking and stock management will be implemented here.</p>
           </div>
         );
       case 'users':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">User Management</h2>
-            <p className="text-muted-foreground">User management interface will be implemented here.</p>
-          </div>
-        );
+        return <UserManagement />;
+      case 'support':
+        return <TicketManagement />;
       case 'licenses':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">License Management</h2>
-            <p className="text-muted-foreground">License management interface will be implemented here.</p>
-          </div>
-        );
+        return <LicenseManagement />;
       case 'analytics':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Analytics</h2>
-            <p className="text-muted-foreground">Advanced analytics dashboard will be implemented here.</p>
-          </div>
-        );
+        return <Analytics />;
       case 'settings':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Admin Settings</h2>
-            <p className="text-muted-foreground">Admin settings and configuration will be implemented here.</p>
-          </div>
-        );
+        return <AdminSettings />;
       default:
         return <AdminDashboard />;
     }
