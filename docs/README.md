@@ -1,6 +1,82 @@
-# DASHED OS Documentation
+# DASHED Documentation
 
-Welcome to the DASHED OS documentation. This comprehensive guide will help you understand, develop, and deploy the DASHED OS platform.
+Welcome to the DASHED project documentation. This folder contains comprehensive guides, references, and development documentation for the DASHED platform.
+
+## Quick Navigation
+
+### 📚 Core Documentation
+- **[Architecture](./architecture.md)** - System architecture and design decisions
+- **[Developer Guide](./developer-guide.md)** - Development setup and contribution guidelines
+- **[API Reference](./api-reference.md)** - Complete API documentation
+- **[Setup Guide](./setup-guide.md)** - Installation and configuration instructions
+
+### 👥 User Documentation
+- **[Admin User Guide](./admin-user-guide.md)** - Admin interface user documentation
+- **[Troubleshooting Guide](./troubleshooting-guide.md)** - Common issues and solutions
+
+### 🔧 Project Management
+- **[Guidelines](./guidelines.md)** - Documentation standards and organization
+- **[Changelog](./CHANGELOG.md)** - Version history and changes
+- **[Contributing](./CONTRIBUTING.md)** - Contribution guidelines and standards
+- **[Security](./SECURITY.md)** - Security policies and reporting
+
+### 📋 Administrative
+- **[Code of Conduct](./CODE_OF_CONDUCT.md)** - Community standards and behavior
+- **[Project Status](./PROJECT_STATUS.md)** - Current project status and metrics
+- **[Repository Health](./REPOSITORY_HEALTH.md)** - Repository maintenance and health checks
+- **[Deployment Checklist](./DEPLOYMENT_CHECKLIST.md)** - Production deployment guidelines
+
+## Development Phases
+
+### Patches Documentation
+Development is organized into patches, each representing a major feature increment:
+
+- **[Patch 0](./patches/patch-0/)** - Backend foundation and infrastructure
+- **[Patch 1](./patches/patch-1/)** - Admin dashboard and management platform
+- **[Patch N](./patches/patch-n/)** - Future development phases
+
+Each patch folder contains:
+- `PATCHN_CHECKLIST.md` - Implementation checklist and progress tracking
+- `PATCHN_SUMMARY.md` - Summary of features, changes, and outcomes
+
+### Batches Documentation (Future)
+For grouping multiple patches into larger release cycles:
+
+- **[Batch 1](./batches/batch-1/)** - First major release (Patches 0-2)
+- **[Batch N](./batches/batch-n/)** - Future release cycles
+
+## Project Overview
+
+DASHED is a comprehensive platform combining:
+- **Next.js 15** - Modern React framework with app router
+- **TypeScript** - Type-safe development throughout
+- **Supabase** - PostgreSQL database and authentication
+- **Vercel** - Deployment and hosting platform
+- **Solana Integration** - Blockchain capabilities via Rust SDK
+
+## Getting Started
+
+1. **New Developers**: Start with [Setup Guide](./setup-guide.md)
+2. **Contributors**: Read [Contributing](./CONTRIBUTING.md) and [Developer Guide](./developer-guide.md)
+3. **Administrators**: Refer to [Admin User Guide](./admin-user-guide.md)
+4. **API Users**: Check [API Reference](./api-reference.md)
+
+## Support and Contribution
+
+- **Issues**: Report bugs and feature requests on GitHub
+- **Discussions**: Join community discussions on GitHub Discussions
+- **Contributing**: Follow guidelines in [Contributing](./CONTRIBUTING.md)
+- **Security**: Report security issues per [Security Policy](./SECURITY.md)
+
+## Documentation Guidelines
+
+This documentation follows the standards outlined in [Guidelines](./guidelines.md). All contributors should familiarize themselves with these standards when adding or updating documentation.
+
+---
+
+**Last Updated**: July 2025  
+**Documentation Version**: 1.1.0  
+**Project Version**: v1.1.1
 
 ## Quick Navigation
 
