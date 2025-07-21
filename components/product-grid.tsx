@@ -1,6 +1,7 @@
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { ProductCardSkeleton } from "@/components/product/product-card-skeleton"
 
 const products = [
   {
@@ -32,9 +33,19 @@ const products = [
   },
 ]
 
-export function ProductGrid() {
+export function ProductGrid({ isLoading = false }: { isLoading?: boolean }) {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 8 }).map((_, index) => (
+          <ProductCardSkeleton key={index} />
+        ))}
+      </div>
+    )
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {products.map((product) => (
         <div key={product.id} className="group">
           <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative">
@@ -48,16 +59,17 @@ export function ProductGrid() {
               alt={product.name}
               width={400}
               height={400}
-              className="object-cover w-full h-full transition-all duration-300 group-hover:scale-110"
+              className="object-cover w-full h-full transition-all duration-300 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300"></div>
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-5 transition-all duration-300"></div>
           </div>
-          <div className="mt-4 space-y-2">
-            <h3 className="text-lg font-medium">{product.name}</h3>
-            <p className="text-gray-600">${product.price}</p>
+          <div className="mt-3 space-y-1">
+            <h3 className="text-base font-medium leading-tight">{product.name}</h3>
+            <p className="text-gray-600 font-semibold">${product.price}</p>
             <Button
-              className="w-full opacity-0 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
-              variant="outline"
+              size="sm"
+              className="w-full opacity-0 transform translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200"
+              variant="primary"
             >
               Add to cart
             </Button>

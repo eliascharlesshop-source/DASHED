@@ -9,23 +9,29 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-[#0077b6] hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        blue: "text-[#0077b6] hover:text-[#0069a3]",
+        // Primary button - Brand colors with strong visual emphasis
+        primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-sm",
+        // Secondary button - Outline style with subtle emphasis
+        secondary: "border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-gray-500 shadow-sm",
+        // Tertiary button - Text-only with minimal visual weight
+        tertiary: "text-blue-600 hover:text-blue-700 hover:underline focus:ring-blue-500 bg-transparent",
+        // Legacy variants for backwards compatibility
+        default: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-sm",
+        destructive: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm",
+        outline: "border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-gray-500 shadow-sm",
+        ghost: "text-gray-700 hover:bg-gray-100 focus:ring-gray-500",
+        link: "text-blue-600 hover:text-blue-700 hover:underline focus:ring-blue-500 bg-transparent",
+        blue: "text-blue-600 hover:text-blue-700 focus:ring-blue-500",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        sm: "h-8 px-3 py-1 text-xs rounded",
+        default: "h-10 px-4 py-2 text-sm rounded-md",
+        lg: "h-12 px-6 py-3 text-base rounded-lg",
+        icon: "h-10 w-10 rounded-md",
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "primary",
       size: "default",
     },
   },

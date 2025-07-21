@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useDashedOS } from "@/hooks/use-dasheros"
 import {
   BarChart3,
   Users,
@@ -19,73 +20,90 @@ import {
   Zap,
   Shield,
   Wifi,
-  HardDrive
+  HardDrive,
+  Eye,
+  EyeOff
 } from "lucide-react"
 
 export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState("7d")
+  const { 
+    devices, 
+    onlineDevices, 
+    alerts, 
+    systemStatus, 
+    isLoading,
+    enableAnonymousMode,
+    disableAnonymousMode,
+    enablePrivacyMode,
+    resolveAlert
+  } = useDashedOS()
+
+  const [privacyMode, setPrivacyMode] = useState(false)
+  const [anonymousMode, setAnonymousMode] = useState(false)
+
+  const handleTogglePrivacy = () => {
+    if (privacyMode) {
+      // Note: In real implementation, add disable privacy mode
+      setPrivacyMode(false)
+    } else {
+      enablePrivacyMode()
+      setPrivacyMode(true)
+    }
+  }
+
+  const handleToggleAnonymous = () => {
+    if (anonymousMode) {
+      disableAnonymousMode()
+      setAnonymousMode(false)
+    } else {
+      enableAnonymousMode()
+      setAnonymousMode(true)
+    }
+  }
 
   const stats = [
     {
       title: "Total Devices",
-      value: "12",
-      change: "+2 from last month",
+      value: systemStatus.deviceCount.toString(),
+      change: `${onlineDevices.length} online`,
       icon: Monitor,
       color: "text-blue-500"
     },
     {
-      title: "Active Users",
-      value: "8",
-      change: "+1 from last week",
-      icon: Users,
+      title: "Active Devices",
+      value: systemStatus.onlineDevices.toString(),
+      change: "Real-time monitoring",
+      icon: Activity,
       color: "text-green-500"
     },
     {
-      title: "System Health",
-      value: "98.5%",
-      change: "+0.2% uptime",
-      icon: Activity,
-      color: "text-accent-500"
+      title: "Security Level",
+      value: systemStatus.securityLevel,
+      change: `${alerts.filter(a => a.type === 'security').length} alerts`,
+      icon: Shield,
+      color: systemStatus.securityLevel === 'secure' ? "text-green-500" : 
+             systemStatus.securityLevel === 'warning' ? "text-yellow-500" : "text-red-500"
     },
     {
-      title: "Data Synced",
-      value: "2.4 GB",
-      change: "+340 MB today",
-      icon: HardDrive,
+      title: "System Uptime",
+      value: `${Math.floor(systemStatus.uptime / 3600)}h`,
+      change: "DashedOS running",
+      icon: Zap,
       color: "text-purple-500"
     }
   ]
 
-  const recentActivity = [
-    {
-      id: 1,
-      action: "Device connected",
-      device: "MacBook Pro",
-      time: "2 minutes ago",
-      status: "success"
-    },
-    {
-      id: 2,
-      action: "Backup completed",
-      device: "iPhone 14 Pro",
-      time: "15 minutes ago",
-      status: "success"
-    },
-    {
-      id: 3,
-      action: "Low battery warning",
-      device: "iPad Air",
-      time: "1 hour ago",
-      status: "warning"
-    },
-    {
-      id: 4,
-      action: "System update",
-      device: "Windows Desktop",
-      time: "3 hours ago",
-      status: "info"
-    }
-  ]
+  // Recent activity from alerts and device events
+  const recentActivity = alerts.slice(0, 4).map(alert => ({
+    id: alert.id,
+    action: alert.message,
+    device: devices.find(d => d.id === alert.deviceId)?.name || 'Unknown Device',
+    time: new Date(alert.timestamp).toLocaleTimeString(),
+    status: alert.severity === 'critical' ? 'error' : 
+           alert.severity === 'high' ? 'warning' : 
+           alert.severity === 'medium' ? 'warning' : 'info'
+  }))
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -93,11 +111,30 @@ export default function DashboardPage() {
         return <CheckCircle className="h-4 w-4 text-green-500" />
       case "warning":
         return <AlertTriangle className="h-4 w-4 text-yellow-500" />
+      case "error":
+        return <AlertTriangle className="h-4 w-4 text-red-500" />
       case "info":
         return <Clock className="h-4 w-4 text-blue-500" />
       default:
         return <Clock className="h-4 w-4 text-gray-500" />
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen overflow-hidden">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <AppHeader toggleSidebar={() => {}} />
+          <main className="flex-1 flex items-center justify-center bg-gray-50">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Initializing DashedOS...</p>
+            </div>
+          </main>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -110,11 +147,31 @@ export default function DashboardPage() {
           {/* Dashboard Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
-              <p className="text-gray-600">Monitor your DASHED OS ecosystem performance</p>
+              <h1 className="text-2xl font-bold text-gray-900">DashedOS Dashboard</h1>
+              <p className="text-gray-600">Universal operating system monitoring and control</p>
             </div>
             
             <div className="flex items-center gap-2">
+              <Button
+                variant={privacyMode ? "primary" : "secondary"}
+                size="sm"
+                onClick={handleTogglePrivacy}
+                className="flex items-center gap-2"
+              >
+                {privacyMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                Privacy Mode
+              </Button>
+              
+              <Button
+                variant={anonymousMode ? "primary" : "secondary"}
+                size="sm"
+                onClick={handleToggleAnonymous}
+                className="flex items-center gap-2"
+              >
+                <Shield className="h-4 w-4" />
+                Anonymous
+              </Button>
+              
               <Tabs value={timeRange} onValueChange={setTimeRange} className="w-auto">
                 <TabsList>
                   <TabsTrigger value="24h">24h</TabsTrigger>
@@ -152,10 +209,10 @@ export default function DashboardPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BarChart3 className="h-5 w-5" />
-                  System Performance
+                  DashedOS Performance
                 </CardTitle>
                 <CardDescription>
-                  Real-time performance metrics across all devices
+                  Real-time performance metrics across all connected devices
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -165,10 +222,22 @@ export default function DashboardPage() {
                       <Shield className="h-5 w-5 text-green-500 mr-2" />
                       <h3 className="font-medium text-green-700">Security</h3>
                     </div>
-                    <p className="text-sm text-green-600">All systems secure</p>
+                    <p className="text-sm text-green-600">
+                      {systemStatus.securityLevel === 'secure' ? 'All systems secure' : 
+                       systemStatus.securityLevel === 'warning' ? 'Security warnings' : 'Critical threats'}
+                    </p>
                     <div className="mt-2">
                       <div className="w-full bg-green-200 rounded-full h-2">
-                        <div className="bg-green-500 h-2 rounded-full" style={{ width: '100%' }}></div>
+                        <div 
+                          className={`h-2 rounded-full ${
+                            systemStatus.securityLevel === 'secure' ? 'bg-green-500' :
+                            systemStatus.securityLevel === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
+                          }`} 
+                          style={{ 
+                            width: systemStatus.securityLevel === 'secure' ? '100%' :
+                                   systemStatus.securityLevel === 'warning' ? '70%' : '30%'
+                          }}
+                        ></div>
                       </div>
                     </div>
                   </div>
@@ -178,7 +247,7 @@ export default function DashboardPage() {
                       <Wifi className="h-5 w-5 text-blue-500 mr-2" />
                       <h3 className="font-medium text-blue-700">Network</h3>
                     </div>
-                    <p className="text-sm text-blue-600">12 devices connected</p>
+                    <p className="text-sm text-blue-600">{onlineDevices.length} devices connected</p>
                     <div className="mt-2">
                       <div className="w-full bg-blue-200 rounded-full h-2">
                         <div className="bg-blue-500 h-2 rounded-full" style={{ width: '85%' }}></div>
@@ -186,15 +255,15 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <div className="bg-accent-50 rounded-lg p-4 border border-accent-100">
+                  <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
                     <div className="flex items-center mb-2">
-                      <Zap className="h-5 w-5 text-accent-500 mr-2" />
-                      <h3 className="font-medium text-accent-700">Performance</h3>
+                      <Zap className="h-5 w-5 text-purple-500 mr-2" />
+                      <h3 className="font-medium text-purple-700">DashedOS</h3>
                     </div>
-                    <p className="text-sm text-accent-600">Optimal performance</p>
+                    <p className="text-sm text-purple-600">Optimal performance</p>
                     <div className="mt-2">
-                      <div className="w-full bg-accent-200 rounded-full h-2">
-                        <div className="bg-accent-500 h-2 rounded-full" style={{ width: '92%' }}></div>
+                      <div className="w-full bg-purple-200 rounded-full h-2">
+                        <div className="bg-purple-500 h-2 rounded-full" style={{ width: '92%' }}></div>
                       </div>
                     </div>
                   </div>
@@ -250,7 +319,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recentActivity.map((activity) => (
+                  {recentActivity.length > 0 ? recentActivity.map((activity) => (
                     <div key={activity.id} className="flex items-start space-x-3">
                       <div className="flex-shrink-0 mt-1">
                         {getStatusIcon(activity.status)}
@@ -260,8 +329,24 @@ export default function DashboardPage() {
                         <p className="text-sm text-gray-500">{activity.device}</p>
                         <p className="text-xs text-gray-400">{activity.time}</p>
                       </div>
+                      {alerts.find(a => a.id === activity.id) && (
+                        <Button
+                          variant="tertiary"
+                          size="sm"
+                          onClick={() => resolveAlert(activity.id)}
+                          className="text-xs"
+                        >
+                          Resolve
+                        </Button>
+                      )}
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-center py-4">
+                      <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500">No recent alerts</p>
+                      <p className="text-xs text-gray-400">All systems operating normally</p>
+                    </div>
+                  )}
                 </div>
                 
                 <Button variant="outline" className="w-full mt-4">

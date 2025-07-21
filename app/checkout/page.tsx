@@ -270,7 +270,7 @@ export default function CheckoutPage() {
                 <Logo size="lg" textColor="text-[#0077b6]" />
               </div>
 
-              <Button onClick={() => router.push("/")} className="bg-[#0077b6] hover:bg-[#0069a3] text-white">
+              <Button onClick={() => router.push("/")} variant="primary">
                 Continue Shopping
               </Button>
             </div>
@@ -313,7 +313,8 @@ export default function CheckoutPage() {
             {currentStep !== "confirmation" && (
               <Button
                 onClick={handleContinue}
-                className="w-full bg-[#0077b6] hover:bg-[#0069a3] text-white"
+                variant="primary"
+                className="w-full"
                 disabled={isProcessing}
               >
                 {isProcessing
@@ -327,7 +328,7 @@ export default function CheckoutPage() {
             )}
 
             {(currentStep === "shipping" || currentStep === "payment") && (
-              <Button onClick={handleBack} variant="outline" className="w-full">
+              <Button onClick={handleBack} variant="secondary" className="w-full">
                 Back
               </Button>
             )}

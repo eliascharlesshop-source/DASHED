@@ -22,14 +22,14 @@ export function Footer() {
   }
 
   return (
-    <footer className="w-full border-t py-12 md:py-16 lg:py-20 bg-white">
-      <div className="container px-4 md:px-6">
+    <footer className="w-full border-t py-16 lg:py-20 bg-white">
+      <div className="container px-4 md:px-6 max-w-6xl mx-auto">
         <motion.div
           variants={container}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-8"
+          className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12"
         >
           <motion.div variants={item} className="space-y-4">
             <h3 className="text-sm font-medium">Products</h3>
@@ -141,18 +141,18 @@ export function Footer() {
             <p className="text-sm text-gray-500">
               Subscribe to our newsletter to stay up to date on features and releases.
             </p>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Input type="email" placeholder="Enter your email" />
-              <Button className="bg-accent-500 hover:bg-accent-600 text-white">Subscribe</Button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Input type="email" placeholder="Enter your email" className="flex-1" />
+              <Button variant="primary" size="sm">Subscribe</Button>
             </div>
             <p className="text-xs text-gray-500">
               By subscribing, you agree to our Terms of Service and Privacy Policy.
             </p>
           </motion.div>
         </motion.div>
-        <div className="flex flex-col md:flex-row justify-between items-center mt-12 pt-8 border-t">
-          <p className="text-xs text-gray-500">© 2024 DASHED. All rights reserved.</p>
-          <div className="flex gap-4 mt-4 md:mt-0">
+        <div className="flex flex-col md:flex-row justify-between items-center mt-16 pt-8 border-t border-gray-200">
+          <p className="text-sm text-gray-500">© 2025 DASHED. All rights reserved.</p>
+          <div className="flex gap-6 mt-4 md:mt-0">
             <Link href="#" className="text-gray-500 hover:text-accent-500 transition-colors duration-200">
               <span className="sr-only">Facebook</span>
               <svg

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
+import { useDashedOS, useDevice } from "@/hooks/use-dasheros"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -29,179 +30,59 @@ import {
   Upload,
   Download,
   Zap,
+  Server
 } from "lucide-react"
 
-// Mock data for devices and recent activities
-const mockDevices = [
-  {
-    id: "device-1",
-    name: "MacBook Pro",
-    type: "laptop",
-    icon: <Laptop className="h-6 w-6" />,
-    os: "macOS",
-    status: "online",
-    battery: 78,
-    storage: {
-      used: 256,
-      total: 512,
-    },
-    cpu: 12,
-    memory: 42,
-    lastSeen: "Just now",
-    ip: "192.168.1.5",
-    location: "Home Office",
-  },
-  {
-    id: "device-2",
-    name: "iPhone 14 Pro",
-    type: "smartphone",
-    icon: <Smartphone className="h-6 w-6" />,
-    os: "iOS",
-    status: "online",
-    battery: 64,
-    storage: {
-      used: 78,
-      total: 128,
-    },
-    cpu: 8,
-    memory: 35,
-    lastSeen: "2 minutes ago",
-    ip: "192.168.1.6",
-    location: "Home",
-  },
-  {
-    id: "device-3",
-    name: "iPad Air",
-    type: "tablet",
-    icon: <Tablet className="h-6 w-6" />,
-    os: "iPadOS",
-    status: "offline",
-    battery: 23,
-    storage: {
-      used: 45,
-      total: 256,
-    },
-    cpu: 0,
-    memory: 0,
-    lastSeen: "3 hours ago",
-    ip: "192.168.1.7",
-    location: "Living Room",
-  },
-  {
-    id: "device-4",
-    name: "Windows Desktop",
-    type: "desktop",
-    icon: <Monitor className="h-6 w-6" />,
-    os: "Windows",
-    status: "online",
-    battery: null,
-    storage: {
-      used: 512,
-      total: 1024,
-    },
-    cpu: 35,
-    memory: 60,
-    lastSeen: "Just now",
-    ip: "192.168.1.8",
-    location: "Home Office",
-  },
-  {
-    id: "device-5",
-    name: "Android Tablet",
-    type: "tablet",
-    icon: <Tablet className="h-6 w-6" />,
-    os: "Android",
-    status: "online",
-    battery: 92,
-    storage: {
-      used: 16,
-      total: 64,
-    },
-    cpu: 5,
-    memory: 28,
-    lastSeen: "5 minutes ago",
-    ip: "192.168.1.9",
-    location: "Kitchen",
-  },
-  {
-    id: "device-6",
-    name: "Linux Server",
-    type: "server",
-    icon: <HardDrive className="h-6 w-6" />,
-    os: "Ubuntu",
-    status: "online",
-    battery: null,
-    storage: {
-      used: 2048,
-      total: 4096,
-    },
-    cpu: 65,
-    memory: 72,
-    lastSeen: "Just now",
-    ip: "192.168.1.10",
-    location: "Home Office",
-  },
-]
-
-const recentActivities = [
-  {
-    id: "activity-1",
-    device: "MacBook Pro",
-    action: "File synced",
-    details: "Document.pdf (2.5 MB)",
-    time: "2 minutes ago",
-  },
-  {
-    id: "activity-2",
-    device: "iPhone 14 Pro",
-    action: "Backup completed",
-    details: "12.3 GB of data",
-    time: "15 minutes ago",
-  },
-  {
-    id: "activity-3",
-    device: "Windows Desktop",
-    action: "Software updated",
-    details: "DASHED OS v2.1.4",
-    time: "1 hour ago",
-  },
-  {
-    id: "activity-4",
-    device: "Linux Server",
-    action: "Security alert",
-    details: "Unusual login attempt blocked",
-    time: "3 hours ago",
-  },
-  {
-    id: "activity-5",
-    device: "iPad Air",
-    action: "Low battery",
-    details: "Device powered off at 5%",
-    time: "3 hours ago",
-  },
-]
+// Device type icons mapping
+const deviceIcons = {
+  laptop: <Laptop className="h-6 w-6" />,
+  smartphone: <Smartphone className="h-6 w-6" />,
+  tablet: <Tablet className="h-6 w-6" />,
+  desktop: <Monitor className="h-6 w-6" />,
+  server: <Server className="h-6 w-6" />,
+  iot: <HardDrive className="h-6 w-6" />
+}
 
 export default function AppPage() {
   const { toast } = useToast()
-  const [selectedDevice, setSelectedDevice] = useState<string | null>("device-1")
+  const { 
+    devices, 
+    onlineDevices, 
+    alerts, 
+    isLoading, 
+    refreshDevices, 
+    sendCommand 
+  } = useDashedOS()
+  
+  const [selectedDevice, setSelectedDevice] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [searchQuery, setSearchQuery] = useState("")
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Filter devices based on search query
-  const filteredDevices = mockDevices.filter(
+  const filteredDevices = devices.filter(
     (device) =>
       device.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       device.os.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      device.location.toLowerCase().includes(searchQuery.toLowerCase()),
+      device.location?.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
   // Get the selected device details
-  const selectedDeviceDetails = mockDevices.find((device) => device.id === selectedDevice)
+  const selectedDeviceDetails = devices.find((device) => device.id === selectedDevice)
+
+  // Recent activities from alerts
+  const recentActivities = alerts.slice(0, 5).map(alert => ({
+    id: alert.id,
+    device: devices.find(d => d.id === alert.deviceId)?.name || 'Unknown Device',
+    action: alert.message,
+    details: alert.recommendation || '',
+    time: new Date(alert.timestamp).toLocaleTimeString()
+  }))
 
   // Handle refresh
   const handleRefresh = () => {
     setIsRefreshing(true)
+    refreshDevices()
 
     // Simulate refresh delay
     setTimeout(() => {
@@ -214,43 +95,55 @@ export default function AppPage() {
   }
 
   // Handle device action
-  const handleDeviceAction = (action: string) => {
+  const handleDeviceAction = async (action: string) => {
     if (!selectedDeviceDetails) return
 
     let message = ""
     let variant: "default" | "destructive" = "default"
 
-    switch (action) {
-      case "restart":
-        message = `Restarting ${selectedDeviceDetails.name}...`
-        break
-      case "shutdown":
-        message = `Shutting down ${selectedDeviceDetails.name}...`
-        variant = "destructive"
-        break
-      case "lock":
-        message = `${selectedDeviceDetails.name} has been locked`
-        break
-      case "locate":
-        message = `${selectedDeviceDetails.name} located at ${selectedDeviceDetails.location}`
-        break
-      default:
-        message = `Action performed on ${selectedDeviceDetails.name}`
-    }
+    try {
+      await sendCommand(selectedDeviceDetails.id, action)
+      
+      switch (action) {
+        case "restart":
+          message = `Restarting ${selectedDeviceDetails.name}...`
+          break
+        case "shutdown":
+          message = `Shutting down ${selectedDeviceDetails.name}...`
+          variant = "destructive"
+          break
+        case "lock":
+          message = `${selectedDeviceDetails.name} has been locked`
+          break
+        case "locate":
+          message = `${selectedDeviceDetails.name} located at ${selectedDeviceDetails.location}`
+          break
+        default:
+          message = `Action performed on ${selectedDeviceDetails.name}`
+      }
 
-    toast({
-      title: "Device Action",
-      description: message,
-      variant,
-    })
+      toast({
+        title: "Device Action",
+        description: message,
+        variant,
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to ${action} ${selectedDeviceDetails.name}`,
+        variant: "destructive"
+      })
+    }
   }
 
   // Format storage size
-  const formatStorage = (sizeInGB: number) => {
-    if (sizeInGB >= 1024) {
-      return `${(sizeInGB / 1024).toFixed(1)} TB`
+  const formatStorage = (sizeInMB: number) => {
+    if (sizeInMB >= 1024 * 1024) {
+      return `${(sizeInMB / (1024 * 1024)).toFixed(1)} TB`
+    } else if (sizeInMB >= 1024) {
+      return `${(sizeInMB / 1024).toFixed(1)} GB`
     }
-    return `${sizeInGB} GB`
+    return `${sizeInMB} MB`
   }
 
   // Get status color
@@ -260,10 +153,10 @@ export default function AppPage() {
         return "bg-green-500"
       case "offline":
         return "bg-gray-400"
-      case "warning":
+      case "sleeping":
         return "bg-yellow-500"
-      case "error":
-        return "bg-red-500"
+      case "maintenance":
+        return "bg-blue-500"
       default:
         return "bg-gray-400"
     }
@@ -282,6 +175,23 @@ export default function AppPage() {
     if (percentage > 90) return "text-red-500"
     if (percentage > 70) return "text-yellow-500"
     return "text-green-500"
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen overflow-hidden">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <AppHeader />
+          <main className="flex-1 flex items-center justify-center bg-gray-50">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading DashedOS devices...</p>
+            </div>
+          </main>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -380,52 +290,51 @@ export default function AppPage() {
                   </div>
                 ) : viewMode === "grid" ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
-                    {filteredDevices.map((device) => (
-                      <div
-                        key={device.id}
-                        className={`bg-white rounded-lg border ${selectedDevice === device.id ? "border-accent-500 ring-1 ring-accent-200" : "border-gray-200"} shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer`}
-                        onClick={() => setSelectedDevice(device.id)}
-                      >
-                        <div className="p-5">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-center">
-                              <div
-                                className={`w-10 h-10 rounded-full bg-accent-50 flex items-center justify-center mr-3`}
-                              >
-                                {device.icon}
+                    {filteredDevices.map((device) => (                        <div
+                          key={device.id}
+                          className={`bg-white rounded-lg border ${selectedDevice === device.id ? "border-blue-600 ring-1 ring-blue-200" : "border-gray-200"} shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer`}
+                          onClick={() => setSelectedDevice(device.id)}
+                        >
+                          <div className="p-5">
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex items-center">
+                                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mr-3">
+                                  {deviceIcons[device.type] || deviceIcons.iot}
+                                </div>
+                                <div>
+                                  <h3 className="font-medium text-gray-900 text-sm">{device.name}</h3>
+                                  <p className="text-xs text-gray-500">{device.os}</p>
+                                </div>
                               </div>
-                              <div>
-                                <h3 className="font-medium text-gray-900 text-sm">{device.name}</h3>
-                                <p className="text-xs text-gray-500">{device.os}</p>
-                              </div>
+                              <div className={`w-2 h-2 rounded-full ${getStatusColor(device.status)}`}></div>
                             </div>
-                            <div className={`w-2 h-2 rounded-full ${getStatusColor(device.status)}`}></div>
-                          </div>
 
-                          <div className="space-y-3">
-                            {device.battery !== null && (
+                            <div className="space-y-3">
+                              {device.performance.battery && (
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-gray-500">Battery</span>
+                                  <span className={`font-medium ${getBatteryColor(device.performance.battery.level)}`}>
+                                    {device.performance.battery.level}%
+                                  </span>
+                                </div>
+                              )}
+
                               <div className="flex items-center justify-between text-xs">
-                                <span className="text-gray-500">Battery</span>
-                                <span className={`font-medium ${getBatteryColor(device.battery)}`}>
-                                  {device.battery}%
+                                <span className="text-gray-500">Storage</span>
+                                <span className="font-medium">
+                                  {formatStorage(device.performance.storage.used)} / {formatStorage(device.performance.storage.total)}
                                 </span>
                               </div>
-                            )}
 
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-gray-500">Storage</span>
-                              <span className="font-medium">
-                                {formatStorage(device.storage.used)} / {formatStorage(device.storage.total)}
-                              </span>
-                            </div>
-
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-gray-500">Last Seen</span>
-                              <span className="font-medium">{device.lastSeen}</span>
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-gray-500">Last Seen</span>
+                                <span className="font-medium">
+                                  {new Date(device.lastSeen).toLocaleTimeString()}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
                     ))}
                   </div>
                 ) : (
@@ -436,8 +345,8 @@ export default function AppPage() {
                         className={`flex items-center p-4 hover:bg-gray-50 cursor-pointer ${selectedDevice === device.id ? "bg-accent-50" : ""}`}
                         onClick={() => setSelectedDevice(device.id)}
                       >
-                        <div className={`w-10 h-10 rounded-full bg-accent-50 flex items-center justify-center mr-4`}>
-                          {device.icon}
+                        <div className={`w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mr-4`}>
+                          {deviceIcons[device.type] || deviceIcons.iot}
                         </div>
 
                         <div className="flex-grow min-w-0">
@@ -451,14 +360,14 @@ export default function AppPage() {
                         </div>
 
                         <div className="flex items-center gap-6">
-                          {device.battery !== null && (
+                          {device.performance.battery && (
                             <div className="flex items-center">
-                              <Battery className={`h-4 w-4 mr-1 ${getBatteryColor(device.battery)}`} />
-                              <span className="text-xs font-medium">{device.battery}%</span>
+                              <Battery className={`h-4 w-4 mr-1 ${getBatteryColor(device.performance.battery.level)}`} />
+                              <span className="text-xs font-medium">{device.performance.battery.level}%</span>
                             </div>
                           )}
 
-                          <div className="text-xs text-gray-500">{device.lastSeen}</div>
+                          <div className="text-xs text-gray-500">{new Date(device.lastSeen).toLocaleTimeString()}</div>
 
                           <ChevronRight className="h-4 w-4 text-gray-400" />
                         </div>
@@ -483,8 +392,8 @@ export default function AppPage() {
 
                   <div className="p-4">
                     <div className="flex items-center mb-6">
-                      <div className={`w-12 h-12 rounded-full bg-accent-50 flex items-center justify-center mr-4`}>
-                        {selectedDeviceDetails.icon}
+                      <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mr-4">
+                        {deviceIcons[selectedDeviceDetails.type] || deviceIcons.iot}
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-900 text-lg">{selectedDeviceDetails.name}</h3>
@@ -562,20 +471,20 @@ export default function AppPage() {
                       <div>
                         <h4 className="text-sm font-medium text-gray-700 mb-3">System Resources</h4>
                         <div className="space-y-3">
-                          {selectedDeviceDetails.battery !== null && (
+                          {selectedDeviceDetails.performance.battery && (
                             <div>
                               <div className="flex justify-between mb-1">
                                 <span className="text-xs text-gray-500">Battery</span>
                                 <span
-                                  className={`text-xs font-medium ${getBatteryColor(selectedDeviceDetails.battery)}`}
+                                  className={`text-xs font-medium ${getBatteryColor(selectedDeviceDetails.performance.battery.level)}`}
                                 >
-                                  {selectedDeviceDetails.battery}%
+                                  {selectedDeviceDetails.performance.battery.level}%
                                 </span>
                               </div>
                               <div className="w-full bg-gray-200 rounded-full h-1.5">
                                 <div
-                                  className={`h-1.5 rounded-full ${selectedDeviceDetails.battery < 20 ? "bg-red-500" : selectedDeviceDetails.battery < 50 ? "bg-yellow-500" : "bg-green-500"}`}
-                                  style={{ width: `${selectedDeviceDetails.battery}%` }}
+                                  className={`h-1.5 rounded-full ${selectedDeviceDetails.performance.battery.level < 20 ? "bg-red-500" : selectedDeviceDetails.performance.battery.level < 50 ? "bg-yellow-500" : "bg-green-500"}`}
+                                  style={{ width: `${selectedDeviceDetails.performance.battery.level}%` }}
                                 ></div>
                               </div>
                             </div>
@@ -585,15 +494,15 @@ export default function AppPage() {
                             <div className="flex justify-between mb-1">
                               <span className="text-xs text-gray-500">Storage</span>
                               <span className="text-xs font-medium">
-                                {formatStorage(selectedDeviceDetails.storage.used)} /{" "}
-                                {formatStorage(selectedDeviceDetails.storage.total)}
+                                {formatStorage(selectedDeviceDetails.performance.storage.used)} /{" "}
+                                {formatStorage(selectedDeviceDetails.performance.storage.total)}
                               </span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-1.5">
                               <div
-                                className="h-1.5 rounded-full bg-accent-500"
+                                className="h-1.5 rounded-full bg-blue-500"
                                 style={{
-                                  width: `${(selectedDeviceDetails.storage.used / selectedDeviceDetails.storage.total) * 100}%`,
+                                  width: `${(selectedDeviceDetails.performance.storage.used / selectedDeviceDetails.performance.storage.total) * 100}%`,
                                 }}
                               ></div>
                             </div>
@@ -604,14 +513,14 @@ export default function AppPage() {
                               <div>
                                 <div className="flex justify-between mb-1">
                                   <span className="text-xs text-gray-500">CPU</span>
-                                  <span className={`text-xs font-medium ${getUsageColor(selectedDeviceDetails.cpu)}`}>
-                                    {selectedDeviceDetails.cpu}%
+                                  <span className={`text-xs font-medium ${getUsageColor(selectedDeviceDetails.performance.cpu.usage)}`}>
+                                    {selectedDeviceDetails.performance.cpu.usage}%
                                   </span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-1.5">
                                   <div
-                                    className={`h-1.5 rounded-full ${selectedDeviceDetails.cpu > 90 ? "bg-red-500" : selectedDeviceDetails.cpu > 70 ? "bg-yellow-500" : "bg-accent-500"}`}
-                                    style={{ width: `${selectedDeviceDetails.cpu}%` }}
+                                    className={`h-1.5 rounded-full ${selectedDeviceDetails.performance.cpu.usage > 90 ? "bg-red-500" : selectedDeviceDetails.performance.cpu.usage > 70 ? "bg-yellow-500" : "bg-blue-500"}`}
+                                    style={{ width: `${selectedDeviceDetails.performance.cpu.usage}%` }}
                                   ></div>
                                 </div>
                               </div>
@@ -620,15 +529,15 @@ export default function AppPage() {
                                 <div className="flex justify-between mb-1">
                                   <span className="text-xs text-gray-500">Memory</span>
                                   <span
-                                    className={`text-xs font-medium ${getUsageColor(selectedDeviceDetails.memory)}`}
+                                    className={`text-xs font-medium ${getUsageColor((selectedDeviceDetails.performance.memory.used / selectedDeviceDetails.performance.memory.total) * 100)}`}
                                   >
-                                    {selectedDeviceDetails.memory}%
+                                    {Math.round((selectedDeviceDetails.performance.memory.used / selectedDeviceDetails.performance.memory.total) * 100)}%
                                   </span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-1.5">
                                   <div
-                                    className={`h-1.5 rounded-full ${selectedDeviceDetails.memory > 90 ? "bg-red-500" : selectedDeviceDetails.memory > 70 ? "bg-yellow-500" : "bg-accent-500"}`}
-                                    style={{ width: `${selectedDeviceDetails.memory}%` }}
+                                    className={`h-1.5 rounded-full ${(selectedDeviceDetails.performance.memory.used / selectedDeviceDetails.performance.memory.total) * 100 > 90 ? "bg-red-500" : (selectedDeviceDetails.performance.memory.used / selectedDeviceDetails.performance.memory.total) * 100 > 70 ? "bg-yellow-500" : "bg-blue-500"}`}
+                                    style={{ width: `${(selectedDeviceDetails.performance.memory.used / selectedDeviceDetails.performance.memory.total) * 100}%` }}
                                   ></div>
                                 </div>
                               </div>
@@ -642,24 +551,26 @@ export default function AppPage() {
                         <h4 className="text-sm font-medium text-gray-700 mb-3">Device Information</h4>
                         <div className="bg-gray-50 rounded-lg p-3 space-y-2">
                           <div className="flex justify-between">
-                            <span className="text-xs text-gray-500">IP Address</span>
-                            <span className="text-xs font-medium">{selectedDeviceDetails.ip}</span>
+                            <span className="text-xs text-gray-500">Network Interfaces</span>
+                            <span className="text-xs font-medium">
+                              {selectedDeviceDetails.capabilities.networkInterfaces.filter(ni => ni.isActive).length} active
+                            </span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-xs text-gray-500">Location</span>
-                            <span className="text-xs font-medium">{selectedDeviceDetails.location}</span>
+                            <span className="text-xs font-medium">{selectedDeviceDetails.location || 'Unknown'}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-xs text-gray-500">Last Seen</span>
-                            <span className="text-xs font-medium">{selectedDeviceDetails.lastSeen}</span>
+                            <span className="text-xs font-medium">{new Date(selectedDeviceDetails.lastSeen).toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-xs text-gray-500">OS Version</span>
                             <span className="text-xs font-medium">{selectedDeviceDetails.os}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-xs text-gray-500">DASHED OS</span>
-                            <span className="text-xs font-medium">v2.1.4</span>
+                            <span className="text-xs text-gray-500">DashedOS</span>
+                            <span className="text-xs font-medium">{selectedDeviceDetails.version}</span>
                           </div>
                         </div>
                       </div>
@@ -690,29 +601,29 @@ export default function AppPage() {
                 </div>
 
                 <div className="divide-y divide-gray-200 max-h-[300px] overflow-y-auto">
-                  {recentActivities.map((activity) => (
+                  {recentActivities.length > 0 ? recentActivities.map((activity) => (
                     <div key={activity.id} className="p-4">
                       <div className="flex items-start">
                         <div className="mr-3">
-                          {activity.action.includes("alert") ? (
+                          {activity.action.includes("alert") || activity.action.includes("threat") ? (
                             <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
                               <AlertTriangle className="h-4 w-4 text-red-500" />
                             </div>
-                          ) : activity.action.includes("updated") ? (
+                          ) : activity.action.includes("updated") || activity.action.includes("restart") ? (
                             <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                               <RefreshCw className="h-4 w-4 text-blue-500" />
                             </div>
-                          ) : activity.action.includes("synced") ? (
+                          ) : activity.action.includes("synced") || activity.action.includes("completed") ? (
                             <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
                               <Check className="h-4 w-4 text-green-500" />
                             </div>
-                          ) : activity.action.includes("battery") ? (
+                          ) : activity.action.includes("battery") || activity.action.includes("usage") ? (
                             <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center">
                               <Battery className="h-4 w-4 text-yellow-500" />
                             </div>
                           ) : (
-                            <div className="w-8 h-8 rounded-full bg-accent-100 flex items-center justify-center">
-                              <Clock className="h-4 w-4 text-accent-500" />
+                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                              <Clock className="h-4 w-4 text-blue-500" />
                             </div>
                           )}
                         </div>
@@ -720,14 +631,24 @@ export default function AppPage() {
                           <p className="text-sm font-medium text-gray-900">{activity.action}</p>
                           <div className="flex items-center text-xs text-gray-500">
                             <span>{activity.device}</span>
-                            <span className="mx-1">•</span>
-                            <span>{activity.details}</span>
+                            {activity.details && (
+                              <>
+                                <span className="mx-1">•</span>
+                                <span>{activity.details}</span>
+                              </>
+                            )}
                           </div>
                         </div>
                         <div className="text-xs text-gray-500">{activity.time}</div>
                       </div>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="p-8 text-center">
+                      <Check className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500">No recent alerts</p>
+                      <p className="text-xs text-gray-400">All systems operating normally</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-4 border-t border-gray-200">

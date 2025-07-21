@@ -9,12 +9,63 @@ import { CartProvider } from "@/components/cart/cart-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "DASHED - Admin Platform",
-  description: "Comprehensive admin platform for business management and operations",
-  keywords: ["admin", "dashboard", "management", "business", "DASHED"],
-  authors: [{ name: "DASHED Team" }],
+  title: {
+    default: "DASHED - Universal Computing Platform",
+    template: "%s | DASHED"
+  },
+  description: "Experience the future of computing with DASHED - a universal operating system and hardware ecosystem that seamlessly integrates across all your devices.",
+  keywords: [
+    "DASHED", 
+    "universal operating system", 
+    "cross-platform", 
+    "device synchronization", 
+    "smart hardware", 
+    "computing platform", 
+    "TailsOS", 
+    "privacy", 
+    "security", 
+    "IoT", 
+    "DashedOS"
+  ],
+  authors: [{ name: "DASHED Team", url: "https://dashed.com" }],
   creator: "DASHED",
   publisher: "DASHED",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://dashed.com",
+    title: "DASHED - Universal Computing Platform",
+    description: "Experience the future of computing with DASHED - a universal operating system and hardware ecosystem.",
+    siteName: "DASHED",
+    images: [
+      {
+        url: "/placeholder-logo.png",
+        width: 1200,
+        height: 630,
+        alt: "DASHED Platform"
+      }
+    ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DASHED - Universal Computing Platform",
+    description: "Experience the future of computing with DASHED - a universal operating system and hardware ecosystem.",
+    images: ["/placeholder-logo.png"]
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
+  },
   formatDetection: {
     email: false,
     address: false,

@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { ShoppingCart, X, Plus, Minus, Trash2 } from "lucide-react"
 import Image from "next/image"
+import { Button } from "@/components/ui/button"
 
 // This would normally come from your cart context
 const useCart = () => {
@@ -77,7 +78,7 @@ export function CartDropdown() {
             ) : (
               <ul className="divide-y">
                 {items.map((item) => (
-                  <li key={item.id} className="p-4 flex">
+                  <li key={item.id} className="py-6 px-4 flex">
                     <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                       <Image
                         src={item.image || "/placeholder.svg"}
@@ -136,13 +137,18 @@ export function CartDropdown() {
               </div>
               <p className="text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
               <div className="mt-6">
-                <Link
-                  href="/checkout"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-center rounded-md border border-transparent bg-[#0077b6] px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-[#0069a3] w-full"
+                <Button
+                  asChild
+                  className="w-full"
+                  variant="primary"
                 >
-                  Checkout
-                </Link>
+                  <Link
+                    href="/checkout"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Checkout
+                  </Link>
+                </Button>
               </div>
               <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
                 <p>

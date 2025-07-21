@@ -54,19 +54,19 @@ export function NavBar() {
               <Logo />
             </Link>
             <nav className="hidden md:flex gap-6">
-              <Link href="/features" className="text-sm font-medium text-white hover:text-blue-100 transition-colors">
+              <Link href="/features" className="text-sm font-medium text-white hover:text-blue-100 transition-colors pr-4">
                 Features
               </Link>
-              <Link href="/products" className="text-sm font-medium text-white hover:text-blue-100 transition-colors">
+              <Link href="/products" className="text-sm font-medium text-white hover:text-blue-100 transition-colors pr-4">
                 Products
               </Link>
-              <Link href="/careers" className="text-sm font-medium text-white hover:text-blue-100 transition-colors">
+              <Link href="/careers" className="text-sm font-medium text-white hover:text-blue-100 transition-colors pr-4">
                 Careers
               </Link>
-              <Link href="/contact" className="text-sm font-medium text-white hover:text-blue-100 transition-colors">
+              <Link href="/contact" className="text-sm font-medium text-white hover:text-blue-100 transition-colors pr-4">
                 Contact
               </Link>
-              <Link href="/terms" className="text-sm font-medium text-white hover:text-blue-100 transition-colors">
+              <Link href="/terms" className="text-sm font-medium text-white hover:text-blue-100 transition-colors pr-4">
                 Terms
               </Link>
             </nav>
@@ -75,14 +75,14 @@ export function NavBar() {
             <div className="hidden md:flex items-center gap-4">
               <CartDropdown />
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
-                className="border-white text-white hover:bg-[#0069a3] hover:text-white"
+                className="border-white text-white hover:bg-blue-700 hover:text-white"
                 onClick={handleSignIn}
               >
                 {isLoggedIn ? "Dashboard" : "Sign In"}
               </Button>
-              <Button size="sm" className="bg-white text-[#0077b6] hover:bg-blue-100" onClick={handleGetStarted}>
+              <Button variant="primary" size="sm" className="bg-white text-blue-600 hover:bg-blue-50" onClick={handleGetStarted}>
                 Get Started
               </Button>
             </div>
@@ -140,8 +140,8 @@ export function NavBar() {
                   <CartDropdown />
                 </div>
                 <Button
-                  variant="outline"
-                  className="w-full border-white text-white hover:bg-[#0069a3]"
+                  variant="secondary"
+                  className="w-full border-white text-white hover:bg-blue-700"
                   onClick={() => {
                     setIsMobileMenuOpen(false)
                     handleSignIn()
@@ -150,7 +150,8 @@ export function NavBar() {
                   {isLoggedIn ? "Dashboard" : "Sign In"}
                 </Button>
                 <Button
-                  className="w-full bg-white text-[#0077b6] hover:bg-blue-100"
+                  variant="primary"
+                  className="w-full bg-white text-blue-600 hover:bg-blue-50"
                   onClick={() => {
                     setIsMobileMenuOpen(false)
                     handleGetStarted()
