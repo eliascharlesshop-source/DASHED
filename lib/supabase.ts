@@ -1,28 +1,29 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// Client for frontend use
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+// Only create clients if environment variables are available
+export const supabase = supabaseUrl && supabaseAnonKey ? createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
   }
-})
+}) : null as any
 
 // Admin client for backend operations
-export const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseServiceKey, {
+export const supabaseAdmin = supabaseUrl && supabaseServiceKey ? createClient<Database>(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false
   }
-})
+}) : null as any
 
 // Helper function to get authenticated user
 export async function getAuthenticatedUser() {
+  if (!supabase) throw new Error('Supabase client not initialized')
   const { data: { user }, error } = await supabase.auth.getUser()
   if (error) throw error
   return user
@@ -39,12 +40,13 @@ export async function requireAuth() {
 
 // Helper function to get user profile
 export async function getUserProfile(userId: string) {
+  if (!supabase) throw new Error('Supabase client not initialized')
   const { data, error } = await supabase
     .from('users')
     .select('*')
     .eq('id', userId)
     .single()
-  
+
   if (error) throw error
   return data
 }

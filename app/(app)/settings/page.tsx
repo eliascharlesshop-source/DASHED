@@ -29,7 +29,7 @@ export default function SettingsPage() {
     <div className="flex h-screen overflow-hidden">
       <AppSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <AppHeader />
+        <AppHeader toggleSidebar={() => {}} />
 
         <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6">
           {/* Page Header */}
@@ -41,7 +41,7 @@ export default function SettingsPage() {
           </div>
 
           <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-5 mb-6">
+            <TabsList className="grid grid-cols-5 mb-4">
               <TabsTrigger value="general">General</TabsTrigger>
               <TabsTrigger value="security">Security</TabsTrigger>
               <TabsTrigger value="appearance">Appearance</TabsTrigger>

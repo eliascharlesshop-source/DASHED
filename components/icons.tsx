@@ -1,10 +1,16 @@
 import type React from "react"
-import { Loader2 } from "lucide-react"
+import { Loader2, Grid3X3, Kanban, Map, Check, Download, Wallet } from "lucide-react"
 
 type IconProps = React.HTMLAttributes<SVGElement>
 
 export const Icons = {
   spinner: Loader2,
+  grid: Grid3X3,
+  kanban: Kanban,
+  map: Map,
+  check: Check,
+  download: Download,
+  wallet: Wallet,
   google: ({ className, ...props }: IconProps) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} width="24" height="24" {...props}>
       <path

@@ -3,35 +3,14 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { motion } from "framer-motion"
 
 export function Footer() {
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05,
-      },
-    },
-  }
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  }
 
   return (
     <footer className="w-full border-t py-16 lg:py-20 bg-white">
       <div className="container px-4 md:px-6 max-w-6xl mx-auto">
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12"
-        >
-          <motion.div variants={item} className="space-y-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+          <div className="space-y-4">
             <h3 className="text-sm font-medium">Products</h3>
             <ul className="space-y-2 text-sm">
               <li>
@@ -72,8 +51,8 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-          </motion.div>
-          <motion.div variants={item} className="space-y-4">
+          </div>
+          <div className="space-y-4">
             <h3 className="text-sm font-medium">Company</h3>
             <ul className="space-y-2 text-sm">
               <li>
@@ -102,8 +81,8 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-          </motion.div>
-          <motion.div variants={item} className="space-y-4">
+          </div>
+          <div className="space-y-4">
             <h3 className="text-sm font-medium">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li>
@@ -135,8 +114,8 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-          </motion.div>
-          <motion.div variants={item} className="space-y-4">
+          </div>
+          <div className="space-y-4">
             <h3 className="text-sm font-medium">Subscribe</h3>
             <p className="text-sm text-gray-500">
               Subscribe to our newsletter to stay up to date on features and releases.
@@ -148,8 +127,8 @@ export function Footer() {
             <p className="text-xs text-gray-500">
               By subscribing, you agree to our Terms of Service and Privacy Policy.
             </p>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
         <div className="flex flex-col md:flex-row justify-between items-center mt-16 pt-8 border-t border-gray-200">
           <p className="text-sm text-gray-500">© 2025 DASHED. All rights reserved.</p>
           <div className="flex gap-6 mt-4 md:mt-0">

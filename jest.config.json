@@ -5,10 +5,13 @@
     "^@/(.*)$": "<rootDir>/$1"
   },
   "testPathIgnorePatterns": ["<rootDir>/.next/", "<rootDir>/node_modules/"],
-  "moduleFileExtensions": ["ts", "tsx", "js", "jsx"],
+  "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json"],
   "transform": {
     "^.+\\.(ts|tsx)$": ["ts-jest", {
-      "useESM": true
+      "tsconfig": {
+        "module": "CommonJS",
+        "target": "ES2017"
+      }
     }]
   },
   "collectCoverageFrom": [
@@ -17,5 +20,9 @@
     "lib/**/*.{ts,tsx}",
     "!**/*.d.ts",
     "!**/node_modules/**"
+  ],
+  "testMatch": [
+    "<rootDir>/__tests__/**/*.(ts|tsx|js)",
+    "<rootDir>/**/__tests__/**/*.(ts|tsx|js)"
   ]
 }

@@ -18,7 +18,7 @@ const hardwareProducts = [
     tagline: "Central Command Center",
     description: "The central control unit for your DASHED ecosystem with advanced connectivity options.",
     features: ["Multi-device connectivity", "Voice control", "AI processing", "Secure encryption"],
-    image: "/placeholder.svg?height=400&width=400",
+    image: "/product-gradient-1.svg",
     badge: "Best Seller",
     specs: {
       processor: "Quad-core 2.4GHz",
@@ -36,7 +36,7 @@ const hardwareProducts = [
     tagline: "Immersive Visualization",
     description: "High-resolution touchscreen display for visualizing and controlling your digital environment.",
     features: ['10.1" 4K touchscreen', "Adaptive brightness", "Gesture control", "Voice commands"],
-    image: "/placeholder.svg?height=400&width=400",
+    image: "/product-gradient-2.svg",
     badge: "New",
     specs: {
       display: '10.1" 4K Ultra HD',
@@ -56,7 +56,7 @@ const hardwareProducts = [
     tagline: "Intuitive Control",
     description: "Ergonomic handheld controller for precise interaction with your DASHED ecosystem.",
     features: ["Haptic feedback", "Motion sensing", "Programmable buttons", "Voice input"],
-    image: "/placeholder.svg?height=400&width=400",
+    image: "/product-gradient-3.svg",
     specs: {
       buttons: "12 programmable buttons",
       sensors: "6-axis motion sensing",
@@ -73,7 +73,7 @@ const hardwareProducts = [
     tagline: "Seamless Connectivity",
     description: "Connect and charge multiple DASHED devices with this elegant docking station.",
     features: ["Fast charging", "Data synchronization", "Expandable ports", "Cable management"],
-    image: "/placeholder.svg?height=400&width=400",
+    image: "/product-gradient-2.svg",
     specs: {
       ports: "4× USB-C, 2× USB-A, HDMI, Ethernet",
       power: "100W Power Delivery",
@@ -93,7 +93,7 @@ const softwareProducts = [
     tagline: "Your Digital Life, Unified",
     description: "The core operating system that powers your personal digital environment.",
     features: ["Cross-device synchronization", "AI assistant", "Customizable interface", "Secure cloud backup"],
-    image: "/placeholder.svg?height=400&width=400",
+    image: "/product-gradient-1.svg",
     badge: "Most Popular",
   },
   {
@@ -104,7 +104,7 @@ const softwareProducts = [
     tagline: "Connected Home Management",
     description: "Manage your entire family's digital ecosystem with advanced parental controls and sharing features.",
     features: ["Up to 6 user profiles", "Family calendar", "Content filtering", "Location sharing"],
-    image: "/placeholder.svg?height=400&width=400",
+    image: "/product-gradient-2.svg",
   },
   {
     id: "dashed-os-pro",
@@ -114,7 +114,7 @@ const softwareProducts = [
     tagline: "Professional Productivity",
     description: "Enhanced productivity features for professionals and power users.",
     features: ["Advanced automation", "Developer tools", "Priority support", "Extended cloud storage"],
-    image: "/placeholder.svg?height=400&width=400",
+    image: "/product-gradient-3.svg",
     badge: "New",
   },
   {
@@ -125,7 +125,7 @@ const softwareProducts = [
     tagline: "Enterprise-Grade Solutions",
     description: "Scalable solutions for businesses with advanced security and management features.",
     features: ["User management", "Device fleet control", "Security compliance", "API access"],
-    image: "/placeholder.svg?height=400&width=400",
+    image: "/product-gradient-4.svg",
   },
 ]
 
@@ -138,7 +138,6 @@ export default function ProductsPage() {
     toast({
       title: "Added to cart",
       description: `${product.name} has been added to your cart.`,
-      type: "success",
       duration: 3000,
     })
   }
@@ -160,7 +159,7 @@ export default function ProductsPage() {
 
   return (
     <TooltipProvider>
-      <main className="flex-1 bg-white">
+      
         {/* Hero Section */}
         <div className="bg-gradient-to-br from-accent-50 via-white to-accent-50 py-16 relative overflow-hidden">
           {/* Animated background elements */}
@@ -217,7 +216,7 @@ export default function ProductsPage() {
                 className="absolute top-1/4 right-1/4 w-40 h-40 bg-white rounded-lg shadow-lg p-4 transform rotate-6"
               >
                 <Image
-                  src="/placeholder.svg?height=150&width=150"
+                  src="/product-gradient-1.svg"
                   alt="DASHED Hub"
                   width={150}
                   height={150}
@@ -231,7 +230,7 @@ export default function ProductsPage() {
                 className="absolute bottom-1/4 right-1/3 w-40 h-40 bg-white rounded-lg shadow-lg p-4 transform -rotate-6"
               >
                 <Image
-                  src="/placeholder.svg?height=150&width=150"
+                  src="/product-gradient-2.svg"
                   alt="DASHED Display"
                   width={150}
                   height={150}
@@ -331,7 +330,6 @@ export default function ProductsPage() {
                                     toast({
                                       title: "Added to favorites",
                                       description: `${product.name} has been added to your favorites.`,
-                                      type: "info",
                                       duration: 3000,
                                     })
                                   }}
@@ -352,7 +350,6 @@ export default function ProductsPage() {
                                 <Button
                                   size="icon"
                                   variant="secondary"
-                                  className="rounded-full bg-white shadow-md hover:bg-accent-50"
                                   className="rounded-full bg-white shadow-md hover:bg-accent-50"
                                 >
                                   <Eye className="h-4 w-4" />
@@ -844,7 +841,7 @@ export default function ProductsPage() {
             </motion.div>
           </div>
         </div>
-      </main>
+      
     </TooltipProvider>
   )
 }

@@ -10,18 +10,18 @@ const buttonVariants = cva(
     variants: {
       variant: {
         // Primary button - Brand colors with strong visual emphasis
-        primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-sm",
+        primary: "bg-[#0077b6] text-white hover:bg-[#0069a3] focus:ring-[#0077b6] shadow-sm",
         // Secondary button - Outline style with subtle emphasis
         secondary: "border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-gray-500 shadow-sm",
         // Tertiary button - Text-only with minimal visual weight
-        tertiary: "text-blue-600 hover:text-blue-700 hover:underline focus:ring-blue-500 bg-transparent",
+        tertiary: "text-[#0077b6] hover:text-[#0069a3] hover:underline focus:ring-[#0077b6] bg-transparent",
         // Legacy variants for backwards compatibility
-        default: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-sm",
+        default: "bg-[#0077b6] text-white hover:bg-[#0069a3] focus:ring-[#0077b6] shadow-sm",
         destructive: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm",
         outline: "border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-gray-500 shadow-sm",
         ghost: "text-gray-700 hover:bg-gray-100 focus:ring-gray-500",
-        link: "text-blue-600 hover:text-blue-700 hover:underline focus:ring-blue-500 bg-transparent",
-        blue: "text-blue-600 hover:text-blue-700 focus:ring-blue-500",
+        link: "text-[#0077b6] hover:text-[#0069a3] hover:underline focus:ring-[#0077b6] bg-transparent",
+        blue: "text-[#0077b6] hover:text-[#0069a3] focus:ring-[#0077b6]",
       },
       size: {
         sm: "h-8 px-3 py-1 text-xs rounded",

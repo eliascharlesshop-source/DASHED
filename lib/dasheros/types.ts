@@ -163,3 +163,11 @@ export interface DashedOSConfig {
     biometricsRequired: boolean
   }
 }
+
+export interface DashedOSCore {
+  getAllDevices(): DashedOSDevice[]
+  getDevice(deviceId: string): DashedOSDevice | undefined
+  registerDevice(device: Omit<DashedOSDevice, 'lastSeen'>): Promise<void>
+  on(event: string, callback: Function): void
+  emitEvent(event: string, data: DashedOSEvent): void
+}

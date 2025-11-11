@@ -30,7 +30,7 @@ export const userLoginSchema = z.object({
 export const deviceSchema = z.object({
   name: z.string().min(1, 'Device name is required').max(100, 'Device name is too long'),
   type: z.enum(['desktop', 'mobile', 'tablet', 'iot']),
-  configuration: z.record(z.any()).optional(),
+  configuration: z.object({}).catchall(z.unknown()).optional(),
   solanaAddress: z.string().optional(),
 })
 
@@ -44,7 +44,7 @@ export const productSchema = z.object({
   category: z.string().min(1, 'Category is required'),
   images: z.array(z.string().url('Invalid image URL')).optional(),
   features: z.array(z.string()).optional(),
-  specifications: z.record(z.any()).optional(),
+  specifications: z.object({}).catchall(z.unknown()).optional(),
   inStock: z.boolean().optional(),
 })
 

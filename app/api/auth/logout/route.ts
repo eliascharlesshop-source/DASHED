@@ -4,6 +4,10 @@ import { createApiResponse, createErrorResponse, withErrorHandling } from '@/lib
 
 // POST /api/auth/logout
 export const POST = withErrorHandling(async (request: NextRequest) => {
+  if (!supabase) {
+    return createErrorResponse('Authentication service unavailable', 503)
+  }
+
   const { error } = await supabase.auth.signOut()
 
   if (error) {
@@ -11,6 +15,6 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   }
 
   return NextResponse.json(
-    createApiResponse(null, 'Logout successful')
+    createApiResponse(null, 'Logged out successfully')
   )
 })

@@ -1,5 +1,4 @@
-import { DashedOSDevice, DashedOSEvent } from './types';
-import { DashedOSCore } from './core';
+import { DashedOSDevice, DashedOSEvent, DashedOSCore } from './types';
 
 export interface Conflict {
   id: string;

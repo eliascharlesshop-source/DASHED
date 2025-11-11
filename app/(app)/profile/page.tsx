@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { AppHeader } from "@/components/app-header"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Button } from "@/components/ui/button"
@@ -91,7 +92,7 @@ export default function ProfilePage() {
     <div className="flex h-screen overflow-hidden">
       <AppSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <AppHeader />
+        <AppHeader toggleSidebar={() => {}} />
 
         <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6">
           {/* Page Header */}
@@ -127,7 +128,7 @@ export default function ProfilePage() {
           </div>
 
           <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-5 mb-6">
+            <TabsList className="grid grid-cols-5 mb-4">
               <TabsTrigger value="general">General</TabsTrigger>
               <TabsTrigger value="security">Security</TabsTrigger>
               <TabsTrigger value="appearance">Appearance</TabsTrigger>
@@ -149,9 +150,11 @@ export default function ProfilePage() {
                         {/* Avatar */}
                         <div className="flex flex-col items-center">
                           <div className="relative">
-                            <img
+                            <Image
                               src={userData.avatar || "/placeholder.svg"}
                               alt="Profile"
+                              width={128}
+                              height={128}
                               className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md"
                             />
                             {isEditing && (

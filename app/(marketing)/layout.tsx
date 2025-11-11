@@ -1,5 +1,5 @@
 import type React from "react"
-import { NavBar } from "@/components/navbar"
+import NavBar from "@/components/navbar"
 import { Footer } from "@/components/footer"
 
 export default function MarketingLayout({

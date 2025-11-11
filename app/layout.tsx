@@ -9,6 +9,7 @@ import { CartProvider } from "@/components/cart/cart-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://dashed.com'),
   title: {
     default: "DASHED - Universal Computing Platform",
     template: "%s | DASHED"
@@ -32,8 +33,8 @@ export const metadata: Metadata = {
   publisher: "DASHED",
   openGraph: {
     type: "website",
-    locale: "en_US",
-    url: "https://dashed.com",
+    locale: "en",
+    url: "/",
     title: "DASHED - Universal Computing Platform",
     description: "Experience the future of computing with DASHED - a universal operating system and hardware ecosystem.",
     siteName: "DASHED",
@@ -79,7 +80,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <CartProvider>
           <ToastProvider>

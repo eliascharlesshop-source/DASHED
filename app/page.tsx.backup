@@ -76,12 +76,13 @@ export default function Home() {
   }, [testimonials.length])
 
   return (
-    <>
-      {/* Hero Section */}
-      <section
-        ref={heroRef}
-        className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-b from-accent-50 to-white"
-      >
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section
+          ref={heroRef}
+          className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-b from-accent-50 to-white"
+        >
           {/* Background Elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-full opacity-10">
@@ -806,9 +807,10 @@ export default function Home() {
             </div>
           </div>
         </section>
+      </main>
 
       {/* Get Started Flow */}
       <GetStartedFlow isOpen={isGetStartedOpen} onClose={() => setIsGetStartedOpen(false)} />
-    </>
+    </div>
   )
 }

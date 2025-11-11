@@ -7,7 +7,9 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { GetStartedFlow } from "@/components/onboarding/get-started-flow"
+// import { GetStartedFlow } from "@/components/onboarding/get-started-flow"
+import { NavBar } from "@/components/navbar"
+import { Footer } from "@/components/footer"
 import {
   ArrowRight,
   CheckCircle2,
@@ -24,7 +26,6 @@ import {
 } from "lucide-react"
 
 export default function Home() {
-  const [isGetStartedOpen, setIsGetStartedOpen] = useState(false)
   const [activeTestimonial, setActiveTestimonial] = useState(0)
   const heroRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
@@ -35,10 +36,6 @@ export default function Home() {
   const opacity = useTransform(scrollYProgress, [0, 1], [1, 0])
   const scale = useTransform(scrollYProgress, [0, 1], [1, 0.8])
   const y = useTransform(scrollYProgress, [0, 1], [0, 100])
-
-  const handleGetStarted = () => {
-    setIsGetStartedOpen(true)
-  }
 
   const testimonials = [
     {
@@ -76,12 +73,13 @@ export default function Home() {
   }, [testimonials.length])
 
   return (
-    <>
-      {/* Hero Section */}
-      <section
-        ref={heroRef}
-        className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-b from-accent-50 to-white"
-      >
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section
+          ref={heroRef}
+          className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-b from-accent-50 to-white"
+        >
           {/* Background Elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-full opacity-10">
@@ -136,14 +134,15 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: 0.3 }}
                   className="flex flex-col sm:flex-row gap-4"
                 >
-                  <Button
-                    size="lg"
-                    className="bg-accent-500 hover:bg-accent-600 text-white group transition-all duration-300 transform hover:scale-105"
-                    onClick={handleGetStarted}
-                  >
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                  </Button>
+                  <Link href="/app">
+                    <Button
+                      size="lg"
+                      className="bg-accent-500 hover:bg-accent-600 text-white group transition-all duration-300 transform hover:scale-105"
+                    >
+                      Get Started
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </Button>
+                  </Link>
                   <Button
                     size="lg"
                     variant="outline"
@@ -772,14 +771,15 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="flex flex-col sm:flex-row justify-center gap-4"
               >
-                <Button
-                  size="lg"
-                  className="bg-white text-accent-600 hover:bg-accent-50 transition-all duration-300 transform hover:scale-105"
-                  onClick={handleGetStarted}
-                >
-                  Get Started
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </Button>
+                <Link href="/app">
+                  <Button
+                    size="lg"
+                    className="bg-white text-accent-600 hover:bg-accent-50 transition-all duration-300 transform hover:scale-105"
+                  >
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Button>
+                </Link>
                 <Button
                   size="lg"
                   variant="outline"
@@ -806,9 +806,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-      {/* Get Started Flow */}
-      <GetStartedFlow isOpen={isGetStartedOpen} onClose={() => setIsGetStartedOpen(false)} />
-    </>
+      </main>
+    </div>
   )
 }

@@ -5,6 +5,10 @@ import { validateBody, userLoginSchema } from '@/lib/validations'
 
 // POST /api/auth/login
 export const POST = withErrorHandling(async (request: NextRequest) => {
+  if (!supabase) {
+    return createErrorResponse('Authentication service unavailable', 503)
+  }
+
   const body = await request.json()
   const { email, password } = validateBody(userLoginSchema, body)
 

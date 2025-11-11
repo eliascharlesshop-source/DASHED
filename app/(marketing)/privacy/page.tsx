@@ -1,28 +1,27 @@
 export default function PrivacyPage() {
   return (
-    <main className="flex-1 pt-16">
-      <div className="container max-w-3xl mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold tracking-tight text-center mb-2">Privacy Policy</h1>
-        <p className="text-center text-gray-600 mb-12">Last updated: April 3, 2024</p>
+    <div className="container max-w-3xl mx-auto px-4 py-12">
+      <h1 className="text-4xl font-bold tracking-tight text-center mb-2">Privacy Policy</h1>
+      <p className="text-center text-gray-600 mb-12">Last updated: April 3, 2024</p>
 
-        <div className="prose prose-gray max-w-none">
-          <h2>Introduction</h2>
-          <p>
-            At DASHED, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and
-            safeguard your information when you use our DASHED OS and related services.
-          </p>
+      <div className="prose prose-gray max-w-none">
+        <h2>Introduction</h2>
+        <p>
+          At DASHED, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and
+          safeguard your information when you use our DASHED OS and related services.
+        </p>
 
-          <h2>Information We Collect</h2>
-          <h3>Personal Information</h3>
-          <ul>
-            <li>Name and contact information</li>
-            <li>Device information and identifiers</li>
-            <li>Usage data and preferences</li>
-            <li>Location data (with your consent)</li>
-          </ul>
+        <h2>Information We Collect</h2>
+        <h3>Personal Information</h3>
+        <ul>
+          <li>Name and contact information</li>
+          <li>Device information and identifiers</li>
+          <li>Usage data and preferences</li>
+          <li>Location data (with your consent)</li>
+        </ul>
 
-          <h3>Device Information</h3>
-          <p>When you use DASHED OS, we collect information about your connected devices, including:</p>
+        <h3>Device Information</h3>
+        <p>When you use DASHED OS, we collect information about your connected devices, including:</p>
           <ul>
             <li>Device types and models</li>
             <li>Device settings and configurations</li>
@@ -66,6 +65,5 @@ export default function PrivacyPage() {
           </p>
         </div>
       </div>
-    </main>
-  )
-}
+    )
+  }

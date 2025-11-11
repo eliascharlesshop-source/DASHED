@@ -19,8 +19,11 @@ export class DashedOSCore {
   public conflictResolver: ConflictResolutionEngine
   private heartbeatTimer?: NodeJS.Timeout
   private securityMonitor?: NodeJS.Timeout
+  private readonly initializedAt: number
 
   constructor(config: Partial<DashedOSConfig> = {}) {
+    // Track initialization time for uptime calculation
+    this.initializedAt = typeof performance !== 'undefined' ? performance.now() : Date.now()
     this.config = {
       monitoring: {
         heartbeatInterval: 30,
@@ -53,7 +56,7 @@ export class DashedOSCore {
     this.initializeCore()
     
     // Initialize integrated managers
-    this.deviceMonitor = new DeviceMonitor()
+    this.deviceMonitor = new DeviceMonitor(this)
     this.iotManager = new IoTManager(this)
     this.edgeManager = new EdgeComputeManager(this)
     this.conflictResolver = new ConflictResolutionEngine(this)
@@ -301,6 +304,10 @@ export class DashedOSCore {
     }
   }
 
+  emitEvent(event: string, data: DashedOSEvent): void {
+    this.emit(event, data)
+  }
+
   /**
    * System Control
    */
@@ -347,7 +354,7 @@ export class DashedOSCore {
       deviceCount: devices.length,
       onlineDevices: onlineDevices.length,
       securityLevel,
-      uptime: process.uptime()
+      uptime: Math.floor((typeof performance !== 'undefined' ? performance.now() : Date.now()) - this.initializedAt) / 1000
     }
   }
 }

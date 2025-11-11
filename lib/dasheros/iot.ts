@@ -1,5 +1,4 @@
-import { DashedOSDevice, PerformanceMetrics, SecurityStatus } from './types';
-import { DashedOSCore } from './core';
+import { DashedOSDevice, DashedOSCore } from './types';
 
 export interface IoTDevice extends DashedOSDevice {
   sensors?: {
@@ -88,10 +87,14 @@ export class IoTManager {
   private clusters: Map<string, IoTCluster> = new Map();
   private edgeNodes: Map<string, EdgeComputeNode> = new Map();
   private discoveryEnabled = true;
+  private discoveryInterval: NodeJS.Timeout | null = null;
 
   constructor(core: DashedOSCore) {
     this.core = core;
-    this.startDeviceDiscovery();
+    // Only start device discovery in production, not development
+    if (process.env.NODE_ENV !== 'development') {
+      this.startDeviceDiscovery();
+    }
   }
 
   // Device Discovery
@@ -338,9 +341,27 @@ export class IoTManager {
   }
 
   private async startDeviceDiscovery(): Promise<void> {
-    if (!this.discoveryEnabled) return;
+    // Only start if not already running and discovery is enabled
+    if (this.discoveryInterval || !this.discoveryEnabled) return;
     
-    setInterval(async () => {
+    console.log('🔍 Starting IoT device discovery...');
+    
+    // Run initial discovery
+    try {
+      const devices = await this.discoverDevices();
+      for (const device of devices) {
+        if (!this.core.getDevice(device.id)) {
+          await this.addDevice(device);
+        }
+      }
+    } catch (error) {
+      console.error('Initial device discovery error:', error);
+    }
+    
+    // Set up periodic discovery
+    this.discoveryInterval = setInterval(async () => {
+      if (!this.discoveryEnabled) return;
+      
       try {
         const devices = await this.discoverDevices();
         for (const device of devices) {
@@ -375,5 +396,15 @@ export class IoTManager {
   setDiscoveryEnabled(enabled: boolean): void {
     this.discoveryEnabled = enabled;
     console.log(`🔍 Device discovery ${enabled ? 'enabled' : 'disabled'}`);
+    
+    if (enabled && !this.discoveryInterval) {
+      // Start discovery if enabled and not already running
+      this.startDeviceDiscovery();
+    } else if (!enabled && this.discoveryInterval) {
+      // Stop discovery if disabled and currently running
+      clearInterval(this.discoveryInterval);
+      this.discoveryInterval = null;
+      console.log('🔍 Device discovery stopped');
+    }
   }
 }

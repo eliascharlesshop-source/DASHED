@@ -3,7 +3,7 @@ import { MapPin, Phone, Mail, Clock } from "lucide-react"
 
 export default function ContactPage() {
   return (
-    <main className="flex-1 bg-white">
+    <>
       <div className="bg-accent-50 py-12">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl md:text-4xl font-bold text-accent-700 mb-4">Contact Us</h1>
@@ -76,6 +76,6 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
-    </main>
+    </>
   )
 }

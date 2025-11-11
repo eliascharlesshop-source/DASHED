@@ -150,7 +150,7 @@ export default function NotificationsPage() {
     <div className="flex h-screen overflow-hidden">
       <AppSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <AppHeader />
+        <AppHeader toggleSidebar={() => {}} />
 
         <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6">
           {/* Page Header */}
@@ -177,7 +177,7 @@ export default function NotificationsPage() {
           </div>
 
           <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-5 mb-6">
+            <TabsList className="grid grid-cols-5 mb-4">
               <TabsTrigger value="all" className="relative">
                 All
                 {unreadCount > 0 && <Badge className="ml-2 bg-[#0077b6]">{unreadCount}</Badge>}

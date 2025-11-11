@@ -4,7 +4,7 @@
  */
 
 import { DashedOSDevice, PerformanceMetrics, SecurityStatus, DashedOSEvent } from './types'
-import { dashedOS } from './core'
+// import { dashedOS } from './core' // Removed circular dependency
 
 export interface MonitoringAlert {
   id: string
@@ -33,8 +33,10 @@ export class DeviceMonitor {
   private healthScores: Map<string, DeviceHealth> = new Map()
   private monitoringInterval?: NodeJS.Timeout
   private alertCallbacks: Function[] = []
+  private core: DashedOSCore
 
-  constructor() {
+  constructor(core: DashedOSCore) {
+    this.core = core
     this.initializeMonitoring()
   }
 
@@ -50,9 +52,9 @@ export class DeviceMonitor {
     }, 30000) // Every 30 seconds
 
     // Listen to DashedOS events
-    dashedOS.on('device_connected', this.handleDeviceConnected.bind(this))
-    dashedOS.on('device_disconnected', this.handleDeviceDisconnected.bind(this))
-    dashedOS.on('security_threat', this.handleSecurityThreat.bind(this))
+    this.core.on('device_connected', this.handleDeviceConnected.bind(this))
+    this.core.on('device_disconnected', this.handleDeviceDisconnected.bind(this))
+    this.core.on('security_threat', this.handleSecurityThreat.bind(this))
 
     console.log('✅ Device Monitor initialized')
   }
@@ -61,7 +63,7 @@ export class DeviceMonitor {
    * Perform comprehensive monitoring cycle
    */
   private async performMonitoringCycle(): Promise<void> {
-    const devices = dashedOS.getAllDevices()
+    const devices = this.core.getAllDevices()
     
     for (const device of devices) {
       if (device.status === 'online') {
@@ -445,6 +447,3 @@ export class DeviceMonitor {
     console.log('📊 Device Monitor shutdown complete')
   }
 }
-
-// Export singleton instance
-export const deviceMonitor = new DeviceMonitor()

@@ -64,7 +64,7 @@ const departments = [
 
 export default function CareersPage() {
   return (
-    <main className="flex-1 bg-white">
+    <>
       <div className="bg-accent-50 py-12">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl md:text-4xl font-bold text-accent-700 mb-4">Careers at DASHED</h1>
@@ -126,6 +126,6 @@ export default function CareersPage() {
           <Button className="bg-accent-500 hover:bg-accent-600 text-white">Submit Your Resume</Button>
         </div>
       </div>
-    </main>
+    </>
   )
 }

@@ -108,13 +108,12 @@ export default function FeaturesPage() {
   ]
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section
-          ref={heroRef}
-          className="relative min-h-[80vh] flex items-center overflow-hidden bg-gradient-to-b from-accent-50 to-white"
-        >
+    <>
+      {/* Hero Section */}
+      <section
+        ref={heroRef}
+        className="relative min-h-[80vh] flex items-center overflow-hidden bg-gradient-to-b from-accent-50 to-white"
+      >
           {/* Background Elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-full opacity-10">
@@ -217,7 +216,7 @@ export default function FeaturesPage() {
                       </div>
                       <div className="p-4">
                         <Image
-                          src="/placeholder.svg?height=300&width=400&text=DASHED+OS+Interface"
+                          src="/feature-gradient-1.svg"
                           alt="DASHED OS Interface"
                           width={400}
                           height={300}
@@ -541,7 +540,7 @@ export default function FeaturesPage() {
                             </div>
                             <div className="p-4">
                               <Image
-                                src={`/placeholder.svg?height=300&width=400&text=DASHED+OS+on+${platform.name}`}
+                                src="/feature-gradient-2.svg"
                                 alt={`DASHED OS on ${platform.name}`}
                                 width={400}
                                 height={300}
@@ -748,7 +747,6 @@ export default function FeaturesPage() {
             </div>
           </div>
         </section>
-      </main>
-    </div>
+    </>
   )
 }

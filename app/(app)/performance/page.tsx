@@ -569,7 +569,7 @@ export default function PerformancePage() {
 
           {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="mb-6">
+            <TabsList className="mb-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="cpu">CPU</TabsTrigger>
               <TabsTrigger value="gpu">GPU</TabsTrigger>

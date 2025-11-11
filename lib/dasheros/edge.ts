@@ -1,5 +1,4 @@
-import { DashedOSDevice, PerformanceMetrics } from './types';
-import { DashedOSCore } from './core';
+import { DashedOSDevice, PerformanceMetrics, DashedOSCore } from './types';
 
 export interface EdgeComputeCapabilities {
   id: string;

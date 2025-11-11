@@ -19,7 +19,7 @@ const docCategories = [
 
 export default function DocsPage() {
   return (
-    <main className="flex-1 pt-16">
+    
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold mb-8 gradient-text">Documentation</h1>
@@ -65,6 +65,6 @@ export default function DocsPage() {
           </div>
         </div>
       </div>
-    </main>
+    
   )
 }

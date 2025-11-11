@@ -7,11 +7,9 @@ import { Menu, X } from "lucide-react"
 import { AuthModal } from "@/components/auth/auth-modal"
 import { CartDropdown } from "@/components/cart/cart-dropdown"
 import { Logo } from "@/components/ui/logo"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
-// Create a simplified version of the GetStartedFlow component directly in this file
-// to avoid import issues
-
-export function NavBar() {
+export default function NavBar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
@@ -53,7 +51,7 @@ export function NavBar() {
             <Link href="/" className="flex items-center gap-2">
               <Logo />
             </Link>
-            <nav className="hidden md:flex gap-6">
+            <nav className="hidden md:flex gap-6 ml-6 md:ml-10">
               <Link href="/features" className="text-sm font-medium text-white hover:text-blue-100 transition-colors pr-4">
                 Features
               </Link>
@@ -75,14 +73,14 @@ export function NavBar() {
             <div className="hidden md:flex items-center gap-4">
               <CartDropdown />
               <Button
-                variant="secondary"
+                variant="primary"
                 size="sm"
-                className="border-white text-white hover:bg-blue-700 hover:text-white"
+                className="bg-[#0077b6] hover:bg-[#0069a3] text-white"
                 onClick={handleSignIn}
               >
                 {isLoggedIn ? "Dashboard" : "Sign In"}
               </Button>
-              <Button variant="primary" size="sm" className="bg-white text-blue-600 hover:bg-blue-50" onClick={handleGetStarted}>
+              <Button variant="primary" size="sm" className="bg-white border-white border text-[#0077b6] hover:bg-blue-50" onClick={handleGetStarted}>
                 Get Started
               </Button>
             </div>
@@ -140,8 +138,8 @@ export function NavBar() {
                   <CartDropdown />
                 </div>
                 <Button
-                  variant="secondary"
-                  className="w-full border-white text-white hover:bg-blue-700"
+                  variant="primary"
+                  className="w-full bg-[#0077b6] hover:bg-[#0069a3] text-white"
                   onClick={() => {
                     setIsMobileMenuOpen(false)
                     handleSignIn()
@@ -151,7 +149,7 @@ export function NavBar() {
                 </Button>
                 <Button
                   variant="primary"
-                  className="w-full bg-white text-blue-600 hover:bg-blue-50"
+                  className="w-full bg-white border-white border text-[#0077b6] hover:bg-blue-50"
                   onClick={() => {
                     setIsMobileMenuOpen(false)
                     handleGetStarted()
@@ -177,7 +175,6 @@ export function NavBar() {
 }
 
 // Simple inline version of the GetStartedFlow component to avoid import issues
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 function SimpleGetStartedDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   return (

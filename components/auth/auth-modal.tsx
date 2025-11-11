@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -21,6 +22,7 @@ interface AuthModalProps {
 
 export function AuthModal({ isOpen, onClose, onSuccess, mode = "signin" }: AuthModalProps) {
   const { toast } = useToastContext()
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [authMode, setAuthMode] = useState<"signin" | "signup">(mode)
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null)
@@ -36,8 +38,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = "signin" }: AuthM
         title: authMode === "signin" ? "Signed in successfully" : "Account created successfully",
         description:
           authMode === "signin" ? "Welcome back to DASHED!" : "Welcome to DASHED! Your account has been created.",
-        type: "success",
-        duration: 3000,
+        variant: "success",
       })
     }, 1500)
   }
@@ -53,8 +54,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = "signin" }: AuthM
       toast({
         title: "Wallet connected",
         description: `Your ${walletType} wallet has been connected successfully.`,
-        type: "success",
-        duration: 3000,
+        variant: "success",
       })
     }, 1500)
   }
@@ -71,14 +71,18 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = "signin" }: AuthM
         title: authMode === "signin" ? "Signed in successfully" : "Account created successfully",
         description:
           authMode === "signin" ? "Welcome back to DASHED!" : "Welcome to DASHED! Your account has been created.",
-        type: "success",
-        duration: 3000,
+        variant: "success",
       })
     }, 1500)
   }
 
   const toggleAuthMode = () => {
     setAuthMode(authMode === "signin" ? "signup" : "signin")
+  }
+
+  const handleDemoAccess = () => {
+    onClose()
+    router.push('/app')
   }
 
   return (
@@ -222,6 +226,20 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = "signin" }: AuthM
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Demo Access Section */}
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <div className="text-center">
+            <p className="text-sm text-gray-600 mb-3">Want to explore first?</p>
+            <Button
+              variant="outline"
+              onClick={handleDemoAccess}
+              className="w-full bg-[#0077b6] hover:bg-[#0069a3] text-white border-[#0077b6] hover:border-[#0069a3]"
+            >
+              Try Demo Dashboard
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   )

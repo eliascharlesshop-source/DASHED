@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import Image from "next/image"
 import {
   Laptop,
   Smartphone,
@@ -255,9 +256,11 @@ function MediaPlayer({ stream, onClose }: { stream: any; onClose: () => void }) 
       {/* Media content */}
       {stream.type === "video" && (
         <div className="relative aspect-video bg-black flex items-center justify-center">
-          <img
+          <Image
             src={stream.thumbnail || "/placeholder.svg"}
             alt={stream.name}
+            width={1920}
+            height={1080}
             className="max-w-full max-h-full object-contain"
           />
           {!isPlaying && (
@@ -302,9 +305,11 @@ function MediaPlayer({ stream, onClose }: { stream: any; onClose: () => void }) 
 
       {stream.type === "image" && (
         <div className="relative aspect-video bg-black flex items-center justify-center">
-          <img
+          <Image
             src={stream.thumbnail || "/placeholder.svg"}
             alt={stream.name}
+            width={1920}
+            height={1080}
             className="max-w-full max-h-full object-contain"
           />
           {stream.isProtected && (
@@ -441,9 +446,11 @@ function StreamCard({ stream, onClick }: { stream: any; onClick: () => void }) {
       <div className="relative">
         {stream.thumbnail && (
           <div className="aspect-video bg-gray-100">
-            <img
+            <Image
               src={stream.thumbnail || "/placeholder.svg"}
               alt={stream.name}
+              width={400}
+              height={225}
               className="w-full h-full object-cover"
             />
           </div>
@@ -454,36 +461,61 @@ function StreamCard({ stream, onClick }: { stream: any; onClick: () => void }) {
           </div>
         )}
         {stream.isLive && (
-          <div className="absolute top-2 left-2">
+          <div className="absolute top-3 left-3">
             <Badge className="bg-red-500 text-white">
               <Zap className="h-3 w-3 mr-1" /> LIVE
             </Badge>
           </div>
         )}
         {stream.isProtected && (
-          <div className="absolute top-2 right-2">
+          <div className="absolute top-3 right-3">
             <Badge variant="outline" className="bg-white bg-opacity-75 border-none">
               <Lock className="h-3 w-3 mr-1" /> Protected
             </Badge>
           </div>
         )}
       </div>
-      <CardContent className="p-4">
+      <CardContent className="p-4 sm:p-5">
         <div className="flex items-start justify-between">
-          <div>
-            <h3 className="font-medium text-gray-900 mb-1">{stream.name}</h3>
-            <div className="flex items-center text-xs text-gray-500">
-              <div className="flex items-center mr-3">
+          <div className="min-w-0">
+            <h3 className="font-medium text-gray-900 text-base mb-2 line-clamp-2">{stream.name}</h3>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500">
+              <div className="inline-flex items-center gap-1">
                 {stream.icon}
-                <span className="ml-1 capitalize">{stream.type}</span>
+                <span className="capitalize">{stream.type}</span>
               </div>
-              {stream.resolution && <span className="mr-3">{stream.resolution}</span>}
-              {stream.fps && <span className="mr-3">{stream.fps} fps</span>}
-              {stream.count && <span className="mr-3">{stream.count} items</span>}
-              <span>{stream.size}</span>
+              {stream.resolution && (
+                <>
+                  <span className="text-gray-300">•</span>
+                  <span>{stream.resolution}</span>
+                </>
+              )}
+              {stream.fps && (
+                <>
+                  <span className="text-gray-300">•</span>
+                  <span>{stream.fps} fps</span>
+                </>
+              )}
+              {stream.count && (
+                <>
+                  <span className="text-gray-300">•</span>
+                  <span>{stream.count} items</span>
+                </>
+              )}
+              {stream.size && (
+                <>
+                  <span className="text-gray-300">•</span>
+                  <span className="font-medium text-gray-600">{stream.size}</span>
+                </>
+              )}
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="-mr-1"
+            onClick={(e) => e.stopPropagation()}
+          >
             <MoreVertical className="h-4 w-4" />
           </Button>
         </div>
@@ -499,6 +531,7 @@ export default function MirrorPage() {
   const [selectedStream, setSelectedStream] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("all")
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [mirrorSettings, setMirrorSettings] = useState({
     autoRefresh: false,
     highQuality: true,
@@ -506,6 +539,10 @@ export default function MirrorPage() {
     secureConnection: true,
     showNotifications: true,
   })
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen)
+  }
 
   // Get the selected device details
   const selectedDeviceDetails = mockDevices.find((device) => device.id === selectedDevice)
@@ -553,7 +590,7 @@ export default function MirrorPage() {
     <div className="flex h-screen overflow-hidden">
       <AppSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <AppHeader />
+        <AppHeader toggleSidebar={toggleSidebar} />
 
         {/* Main content area */}
         <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6">

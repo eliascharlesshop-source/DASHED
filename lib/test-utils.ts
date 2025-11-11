@@ -1,5 +1,3 @@
-import { jest } from '@jest/globals'
-
 // Mock Supabase client
 export const mockSupabase = {
   from: jest.fn(() => ({
@@ -218,14 +216,14 @@ export async function expectApiResponse(
 }
 
 export function setupMockAuth(user = mockUser) {
-  mockSupabase.auth.getUser.mockResolvedValue({
+  (mockSupabase.auth.getUser as any).mockResolvedValue({
     data: { user },
     error: null
   })
 }
 
 export function setupMockAuthError(error = 'Authentication failed') {
-  mockSupabase.auth.getUser.mockResolvedValue({
+  (mockSupabase.auth.getUser as any).mockResolvedValue({
     data: { user: null },
     error: { message: error }
   })

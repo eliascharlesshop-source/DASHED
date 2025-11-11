@@ -7,8 +7,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { DashedOSDevice, DashedOSEvent } from '@/lib/dasheros/types'
+import { MonitoringAlert, DeviceHealth } from '@/lib/dasheros/monitor'
 import { dashedOS } from '@/lib/dasheros/core'
-import { deviceMonitor, MonitoringAlert, DeviceHealth } from '@/lib/dasheros/monitor'
 
 export interface DashedOSState {
   devices: DashedOSDevice[]
@@ -60,37 +60,96 @@ export interface DashedOSActions {
 }
 
 export function useDashedOS(): DashedOSState & DashedOSActions {
-  const [state, setState] = useState<DashedOSState>({
-    devices: [],
-    onlineDevices: [],
-    alerts: [],
-    systemStatus: {
-      deviceCount: 0,
-      onlineDevices: 0,
-      securityLevel: 'secure',
-      uptime: 0
-    },
-    // Advanced capabilities
-    iotClusters: [],
-    edgeNodes: [],
-    activeConflicts: [],
-    systemMetrics: {
-      total_devices: 0,
-      online_devices: 0,
-      iot_clusters: 0,
-      edge_nodes: 0,
-      active_conflicts: 0,
-      high_priority_conflicts: 0
-    },
-    isInitialized: false,
-    isLoading: true
+  const [state, setState] = useState<DashedOSState>(() => {
+    // Initialize with mock data for development
+    let initialDevices: DashedOSDevice[] = []
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🏗️ Initializing with mock devices for development...')
+      initialDevices = [
+        {
+          id: 'dev-laptop-001',
+          name: 'MacBook Pro',
+          type: 'laptop' as const,
+          os: 'macOS 14.0',
+          version: '2.1.4',
+          status: 'online' as const,
+          lastSeen: new Date(),
+          location: 'Home Office',
+          capabilities: {
+            hasCamera: true,
+            hasMicrophone: true,
+            hasGPS: false,
+            hasBiometric: true,
+            supportsTTS: true,
+            supportsAR: false,
+            networkInterfaces: [],
+            storageDevices: []
+          },
+          security: {
+            encryptionEnabled: true,
+            firewallActive: true,
+            antivirusStatus: 'active' as const,
+            lastSecurityScan: new Date(),
+            threatLevel: 'low' as const,
+            vpnConnected: false,
+            privacyMode: true
+          },
+          performance: {
+            cpu: { usage: 25, temperature: 45, cores: 8 },
+            memory: { total: 16384, used: 6144, available: 10240 },
+            storage: { total: 512000, used: 256000, available: 256000 },
+            network: { downloadSpeed: 100, uploadSpeed: 50, latency: 15 },
+            battery: { level: 78, isCharging: false, timeRemaining: 480 }
+          }
+        }
+      ]
+      
+      // Add devices to DashedOS core synchronously
+      initialDevices.forEach(device => {
+        try {
+          dashedOS.registerDevice(device)
+          console.log(`✅ Initial mock device registered: ${device.name}`)
+        } catch (error) {
+          console.error(`❌ Failed to register initial device: ${device.name}`, error)
+        }
+      })
+    }
+
+    const onlineDevices = initialDevices.filter(d => d.status === 'online')
+    
+    return {
+      devices: initialDevices,
+      onlineDevices,
+      alerts: [],
+      systemStatus: {
+        deviceCount: initialDevices.length,
+        onlineDevices: onlineDevices.length,
+        securityLevel: 'secure',
+        uptime: 0
+      },
+      // Advanced capabilities
+      iotClusters: [],
+      edgeNodes: [],
+      activeConflicts: [],
+      systemMetrics: {
+        total_devices: initialDevices.length,
+        online_devices: onlineDevices.length,
+        iot_clusters: 0,
+        edge_nodes: 0,
+        active_conflicts: 0,
+        high_priority_conflicts: 0
+      },
+      isInitialized: true,
+      isLoading: false
+    }
   })
 
   // Update state from DashedOS
   const updateState = useCallback(() => {
     const devices = dashedOS.getAllDevices()
     const onlineDevices = dashedOS.getOnlineDevices()
-    const alerts = deviceMonitor.getActiveAlerts()
+    const alerts = dashedOS.deviceMonitor.getActiveAlerts()
     const systemStatus = dashedOS.getSystemStatus()
     
     // Advanced system data
@@ -144,20 +203,13 @@ export function useDashedOS(): DashedOSState & DashedOSActions {
     dashedOS.on('performance_alert', handleDeviceEvent)
     dashedOS.on('system_update', handleDeviceEvent)
 
-    deviceMonitor.onAlert(handleAlert)
+    dashedOS.deviceMonitor.onAlert(handleAlert)
 
     // Initial state update
     updateState()
 
     // Set up periodic updates
     const interval = setInterval(updateState, 10000) // Update every 10 seconds
-
-    // Demo: Add some mock devices for development
-    if (process.env.NODE_ENV === 'development') {
-      setTimeout(() => {
-        addMockDevices()
-      }, 1000)
-    }
 
     return () => {
       clearInterval(interval)
@@ -182,12 +234,12 @@ export function useDashedOS(): DashedOSState & DashedOSActions {
   }, [])
 
   const resolveAlert = useCallback(async (alertId: string) => {
-    await deviceMonitor.resolveAlert(alertId)
+    await dashedOS.deviceMonitor.resolveAlert(alertId)
     updateState()
   }, [updateState])
 
   const getDeviceHealth = useCallback((deviceId: string) => {
-    return deviceMonitor.getDeviceHealth(deviceId)
+    return dashedOS.deviceMonitor.getDeviceHealth(deviceId)
   }, [])
 
   const refreshDevices = useCallback(() => {
@@ -283,7 +335,9 @@ export function useDashedOS(): DashedOSState & DashedOSActions {
 /**
  * Mock data for development and testing
  */
-async function addMockDevices() {
+async function addMockDevices(): Promise<void> {
+  console.log(' Starting to add mock devices...')
+  
   const mockDevices = [
     {
       id: 'dev-laptop-001',
@@ -300,13 +354,8 @@ async function addMockDevices() {
         hasBiometric: true,
         supportsTTS: true,
         supportsAR: false,
-        networkInterfaces: [
-          { name: 'WiFi', type: 'wifi' as const, ipAddress: '192.168.1.5', macAddress: '00:11:22:33:44:55', isActive: true },
-          { name: 'Ethernet', type: 'ethernet' as const, macAddress: '00:11:22:33:44:56', isActive: false }
-        ],
-        storageDevices: [
-          { name: 'Internal SSD', type: 'ssd' as const, total: 512, used: 256, health: 'excellent' as const }
-        ]
+        networkInterfaces: [],
+        storageDevices: []
       },
       security: {
         encryptionEnabled: true,
@@ -340,13 +389,8 @@ async function addMockDevices() {
         hasBiometric: true,
         supportsTTS: true,
         supportsAR: true,
-        networkInterfaces: [
-          { name: 'WiFi', type: 'wifi' as const, ipAddress: '192.168.1.6', macAddress: '00:11:22:33:44:57', isActive: true },
-          { name: 'Cellular', type: 'cellular' as const, macAddress: '00:11:22:33:44:58', isActive: true }
-        ],
-        storageDevices: [
-          { name: 'Internal Storage', type: 'nvme' as const, total: 256, used: 128, health: 'excellent' as const }
-        ]
+        networkInterfaces: [],
+        storageDevices: []
       },
       security: {
         encryptionEnabled: true,
@@ -380,12 +424,8 @@ async function addMockDevices() {
         hasBiometric: false,
         supportsTTS: false,
         supportsAR: false,
-        networkInterfaces: [
-          { name: 'eth0', type: 'ethernet' as const, ipAddress: '192.168.1.10', macAddress: '00:11:22:33:44:59', isActive: true }
-        ],
-        storageDevices: [
-          { name: 'RAID Array', type: 'ssd' as const, total: 4096, used: 2048, health: 'good' as const }
-        ]
+        networkInterfaces: [],
+        storageDevices: []
       },
       security: {
         encryptionEnabled: true,
@@ -405,14 +445,24 @@ async function addMockDevices() {
     }
   ]
 
-  for (const device of mockDevices) {
+  console.log(` Attempting to register ${mockDevices.length} mock devices...`)
+  
+  const registrationPromises = mockDevices.map(async (device) => {
     try {
+      console.log(` Registering device: ${device.name}`)
       await dashedOS.registerDevice(device)
-      console.log(`✅ Mock device registered: ${device.name}`)
+      console.log(` Successfully registered device: ${device.name}`)
+      return true
     } catch (error) {
-      console.error(`❌ Failed to register mock device: ${device.name}`, error)
+      console.error(` Failed to register device: ${device.name}`, error)
+      return false
     }
-  }
+  })
+
+  const results = await Promise.all(registrationPromises)
+  const successCount = results.filter(Boolean).length
+  
+  console.log(` Mock device registration complete: ${successCount}/${mockDevices.length} successful`)
 }
 
 /**
