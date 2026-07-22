@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MigrationProfile, MigrationProgress, MigrationStatus } from '@/lib/installation';
-import { validateRequest, requireAuth, logAction } from '@/lib/api-utils';
+import { MigrationProgress, MigrationStatus } from '@/lib/installation';
+import { createApiResponse, createErrorResponse } from '@/lib/api-utils';
 
 /**
  * GET /api/migrations
@@ -8,8 +8,6 @@ import { validateRequest, requireAuth, logAction } from '@/lib/api-utils';
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await requireAuth(request);
-    
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const limit = parseInt(searchParams.get('limit') || '50');
@@ -54,19 +52,16 @@ export async function GET(request: NextRequest) {
       }
     ];
 
-    await logAction(session.user.id, 'LIST_MIGRATIONS', { status, limit, offset });
-
-    return NextResponse.json({
-      migrations,
-      total_count: 1,
-      has_more: false
-    });
+    return NextResponse.json(
+      createApiResponse({
+        migrations,
+        total_count: 1,
+        has_more: false
+      }, 'Migrations retrieved successfully')
+    );
   } catch (error) {
     console.error('Error fetching migrations:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch migrations' },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error('Failed to fetch migrations'), 500);
   }
 }
 
@@ -76,52 +71,30 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await requireAuth(request);
     const body = await request.json();
-
-    const validation = validateRequest(body, {
-      source_system: 'string',
-      target_system: 'string',
-      migration_type: 'string',
-      scope: 'object',
-      schedule: 'object'
-    });
-
-    if (!validation.valid) {
-      return NextResponse.json(
-        { error: 'Invalid request parameters', details: validation.errors },
-        { status: 400 }
-      );
-    }
 
     // Validate migration parameters
     if (!['full_system', 'data_only', 'partial', 'selective'].includes(body.migration_type)) {
       return NextResponse.json(
-        { error: 'Invalid migration type' },
+        createApiResponse(null, 'Invalid migration type', false),
         { status: 400 }
       );
     }
 
     const migrationId = `mig_${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
 
-    await logAction(session.user.id, 'START_MIGRATION', {
-      source_system: body.source_system,
-      target_system: body.target_system,
-      migration_type: body.migration_type
-    });
-
-    return NextResponse.json({
-      migration_id: migrationId,
-      status: 'planning',
-      created_at: new Date(),
-      estimated_start: body.schedule?.start_time || new Date(),
-      progress_url: `/api/migrations/${migrationId}/progress`
-    });
+    return NextResponse.json(
+      createApiResponse({
+        migration_id: migrationId,
+        status: 'planning',
+        created_at: new Date(),
+        estimated_start: body.schedule?.start_time || new Date(),
+        progress_url: `/api/migrations/${migrationId}/progress`
+      }, 'Migration started successfully'),
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Error starting migration:', error);
-    return NextResponse.json(
-      { error: 'Failed to start migration' },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error('Failed to start migration'), 500);
   }
 }

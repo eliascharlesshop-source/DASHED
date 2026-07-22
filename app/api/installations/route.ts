@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { InstallationProfile, InstallationProgress, CloudHostedImage } from '@/lib/installation';
-import { validateRequest, requireAuth, logAction } from '@/lib/api-utils';
+import { InstallationProfile, InstallationProgress } from '@/lib/installation';
+import { createApiResponse, createErrorResponse, validateUser } from '@/lib/api-utils';
 
 /**
  * GET /api/installations
@@ -8,8 +8,6 @@ import { validateRequest, requireAuth, logAction } from '@/lib/api-utils';
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await requireAuth(request);
-    
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const limit = parseInt(searchParams.get('limit') || '50');
@@ -37,19 +35,16 @@ export async function GET(request: NextRequest) {
       }
     ];
 
-    await logAction(session.user.id, 'LIST_INSTALLATIONS', { status, limit, offset });
-
-    return NextResponse.json({
-      installations,
-      total_count: 1,
-      has_more: false
-    });
+    return NextResponse.json(
+      createApiResponse({
+        installations,
+        total_count: 1,
+        has_more: false
+      }, 'Installations retrieved successfully')
+    );
   } catch (error) {
     console.error('Error fetching installations:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch installations' },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error('Failed to fetch installations'), 500);
   }
 }
 
@@ -59,41 +54,21 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await requireAuth(request);
     const body = await request.json();
 
-    const validation = validateRequest(body, {
-      profile_type: 'string',
-      target_os: 'string',
-      system_info: 'object',
-      configuration: 'object'
-    });
-
-    if (!validation.valid) {
-      return NextResponse.json(
-        { error: 'Invalid request parameters', details: validation.errors },
-        { status: 400 }
-      );
-    }
-
     const installationId = `inst_${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
-    
-    await logAction(session.user.id, 'START_INSTALLATION', {
-      profile_type: body.profile_type,
-      target_os: body.target_os
-    });
 
-    return NextResponse.json({
-      installation_id: installationId,
-      status: 'preparing',
-      estimated_duration_minutes: 15,
-      progress_url: `/api/installations/${installationId}/progress`
-    });
+    return NextResponse.json(
+      createApiResponse({
+        installation_id: installationId,
+        status: 'preparing',
+        estimated_duration_minutes: 15,
+        progress_url: `/api/installations/${installationId}/progress`
+      }, 'Installation started successfully'),
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Error starting installation:', error);
-    return NextResponse.json(
-      { error: 'Failed to start installation' },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error('Failed to start installation'), 500);
   }
 }
