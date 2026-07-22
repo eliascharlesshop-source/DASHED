@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SecurityFramework, CacheTimingProtection, HostOSThrottling } from '@/lib/security';
-import { requireAuth, logAction } from '@/lib/api-utils';
+import { SecurityFramework } from '@/lib/security';
+import { createApiResponse, createErrorResponse } from '@/lib/api-utils';
 
 /**
  * GET /api/security/framework
@@ -8,8 +8,6 @@ import { requireAuth, logAction } from '@/lib/api-utils';
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await requireAuth(request);
-
     const framework: SecurityFramework = {
       version: '1.1.0',
       created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -67,14 +65,11 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    await logAction(session.user.id, 'GET_SECURITY_FRAMEWORK', {});
-
-    return NextResponse.json(framework);
+    return NextResponse.json(
+      createApiResponse(framework, 'Security framework retrieved successfully')
+    );
   } catch (error) {
     console.error('Error fetching security framework:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch security framework' },
-      { status: 500 }
-    );
+    return createErrorResponse(error instanceof Error ? error : new Error('Failed to fetch security framework'), 500);
   }
 }
